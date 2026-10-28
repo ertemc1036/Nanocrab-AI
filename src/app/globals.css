@@ -1,0 +1,197 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* NanoCrab AI ships dark-first. The `.dark` class is set on <html>; light tokens
+   are kept in :root so a light theme can be enabled later without refactoring. */
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-brand: var(--brand);
+  --color-brand-2: var(--brand-2);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+}
+
+:root {
+  --radius: 0.75rem;
+
+  /* Light palette (not enabled in v1). */
+  --background: oklch(0.99 0.002 270);
+  --foreground: oklch(0.18 0.01 270);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.01 270);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.01 270);
+  --primary: oklch(0.62 0.18 35);
+  --primary-foreground: oklch(0.99 0.01 35);
+  --secondary: oklch(0.96 0.004 270);
+  --secondary-foreground: oklch(0.22 0.01 270);
+  --muted: oklch(0.96 0.004 270);
+  --muted-foreground: oklch(0.5 0.015 270);
+  --accent: oklch(0.95 0.006 270);
+  --accent-foreground: oklch(0.22 0.01 270);
+  --destructive: oklch(0.58 0.22 27);
+  --success: oklch(0.6 0.14 160);
+  --warning: oklch(0.72 0.15 75);
+  --border: oklch(0.91 0.005 270);
+  --input: oklch(0.91 0.005 270);
+  --ring: oklch(0.62 0.18 35);
+  --brand: oklch(0.62 0.18 35);
+  --brand-2: oklch(0.58 0.17 295);
+
+  --sidebar: oklch(0.98 0.003 270);
+  --sidebar-foreground: oklch(0.18 0.01 270);
+  --sidebar-primary: oklch(0.62 0.18 35);
+  --sidebar-primary-foreground: oklch(0.99 0.01 35);
+  --sidebar-accent: oklch(0.95 0.006 270);
+  --sidebar-accent-foreground: oklch(0.22 0.01 270);
+  --sidebar-border: oklch(0.91 0.005 270);
+  --sidebar-ring: oklch(0.62 0.18 35);
+}
+
+.dark {
+  --background: oklch(0.145 0.008 275);
+  --foreground: oklch(0.965 0.004 275);
+  --card: oklch(0.175 0.009 275);
+  --card-foreground: oklch(0.965 0.004 275);
+  --popover: oklch(0.19 0.01 275);
+  --popover-foreground: oklch(0.965 0.004 275);
+  /* Coral accent, used sparingly: primary actions, focus, brand marks. */
+  --primary: oklch(0.74 0.15 38);
+  --primary-foreground: oklch(0.17 0.02 38);
+  --secondary: oklch(0.225 0.01 275);
+  --secondary-foreground: oklch(0.95 0.004 275);
+  --muted: oklch(0.215 0.01 275);
+  --muted-foreground: oklch(0.71 0.012 275);
+  --accent: oklch(0.235 0.012 275);
+  --accent-foreground: oklch(0.97 0.004 275);
+  --destructive: oklch(0.68 0.19 25);
+  --success: oklch(0.74 0.14 160);
+  --warning: oklch(0.82 0.14 80);
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.74 0.15 38 / 70%);
+  --brand: oklch(0.74 0.15 38);
+  --brand-2: oklch(0.7 0.15 295);
+
+  --sidebar: oklch(0.16 0.009 275);
+  --sidebar-foreground: oklch(0.93 0.005 275);
+  --sidebar-primary: oklch(0.74 0.15 38);
+  --sidebar-primary-foreground: oklch(0.17 0.02 38);
+  --sidebar-accent: oklch(0.225 0.011 275);
+  --sidebar-accent-foreground: oklch(0.97 0.004 275);
+  --sidebar-border: oklch(1 0 0 / 7%);
+  --sidebar-ring: oklch(0.74 0.15 38 / 70%);
+
+  color-scheme: dark;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "cv11";
+  }
+  ::selection {
+    background: color-mix(in oklch, var(--primary) 35%, transparent);
+  }
+}
+
+@layer utilities {
+  /* Brand gradient text for headlines. Use once per view at most. */
+  .text-gradient-brand {
+    background-image: linear-gradient(
+      100deg,
+      var(--foreground) 10%,
+      color-mix(in oklch, var(--brand) 85%, var(--foreground)) 55%,
+      var(--brand-2) 95%
+    );
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Soft radial glow used behind hero sections and empty states. */
+  .bg-glow {
+    background-image:
+      radial-gradient(
+        60% 50% at 50% 0%,
+        color-mix(in oklch, var(--brand) 16%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        40% 40% at 85% 10%,
+        color-mix(in oklch, var(--brand-2) 12%, transparent),
+        transparent 70%
+      );
+  }
+
+  /* Faint grid pattern for marketing surfaces. */
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, oklch(1 0 0 / 4%) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(1 0 0 / 4%) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse at 50% 0%, black 30%, transparent 75%);
+  }
+
+  /* Subtle gradient hairline border for highlighted cards. */
+  .border-gradient {
+    border: 1px solid transparent;
+    background:
+      linear-gradient(var(--card), var(--card)) padding-box,
+      linear-gradient(
+          135deg,
+          color-mix(in oklch, var(--brand) 45%, transparent),
+          oklch(1 0 0 / 6%) 40%,
+          color-mix(in oklch, var(--brand-2) 40%, transparent)
+        )
+        border-box;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
