@@ -43,4 +43,9 @@ done
 
 export DATABASE_URL="postgresql://postgres@localhost:${PORT}/nanocrab_test?host=${WORK}"
 cd "${ROOT}"
-npx vitest run --config vitest.db.config.mts
+if [[ "${1:-}" == "--gen-types" ]]; then
+  node scripts/gen-db-types.mjs
+  npx prettier --write src/lib/supabase/database.types.ts >/dev/null
+else
+  npx vitest run --config vitest.db.config.mts
+fi

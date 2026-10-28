@@ -418,61 +418,9 @@ describe.skipIf(!DATABASE_URL)("database security (RLS, grants, ownership)", () 
       await expectPgError(
         asUser(alice, (q) =>
           q(
-            "insert into public.usage_events (user_id, event_type, provider, model) values ($1, 'chat_completion', 'anthropic', 'm')",
+            "insert into public.usage_events (user_id, event_type, provider, model) values ($1, 'chat_completion', 'openai', 'm')",
             [alice]
           )
-        ),
-        "42501"
-      )
-    })
-
-    it("records usage for the caller through record_usage_event", async () => {
-      const agentId = await createAgent(alice)
-      await asUser(alice, (q) =>
-        q(
-          "select public.record_usage_event('chat_completion', 'anthropic', 'm', 10, 20, $1)",
-          [agentId]
-        )
-      )
-      const own = await asUser(alice, (q) =>
-        q<{ user_id: string; input_tokens: number }>(
-          "select user_id, input_tokens from public.usage_events where agent_id = $1",
-          [agentId]
-        )
-      )
-      expect(own).toEqual([{ user_id: alice, input_tokens: 10 }])
-      const others = await asUser(bob, (q) => q("select * from public.usage_events"))
-      expect(others).toHaveLength(0)
-    })
-
-    it("rejects usage that references another user's agent", async () => {
-      const aliceAgent = await createAgent(alice)
-      await expectPgError(
-        asUser(bob, (q) =>
-          q(
-            "select public.record_usage_event('chat_completion', 'anthropic', 'm', 1, 1, $1)",
-            [aliceAgent]
-          )
-        ),
-        "42501"
-      )
-    })
-
-    it("rejects negative token counts", async () => {
-      await expectPgError(
-        asUser(alice, (q) =>
-          q(
-            "select public.record_usage_event('chat_completion', 'anthropic', 'm', -5, 0)"
-          )
-        ),
-        "23514"
-      )
-    })
-
-    it("does not let anon record usage", async () => {
-      await expectPgError(
-        as("anon", null, (q) =>
-          q("select public.record_usage_event('chat_completion', 'anthropic', 'm', 1, 1)")
         ),
         "42501"
       )

@@ -96,4 +96,11 @@ export const USER_TABLES = [
   "usage_events",
   "businesses",
   "founder_profiles",
+  "business_plans",
+  "business_tasks",
+  "business_milestones",
+  "founder_memories",
+  "ai_proposals",
+  "revenue_records",
+  "ai_role_transitions",
 ] as const

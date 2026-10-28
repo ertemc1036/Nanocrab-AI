@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { Suspense } from "react"
 
 import { appNav, isNavItemActive } from "@/config/navigation"
 import { cn } from "@/lib/utils"
@@ -9,9 +10,29 @@ import { cn } from "@/lib/utils"
 const itemBase =
   "group relative flex h-9 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors"
 
+/**
+ * Reading the URL must happen inside <Suspense> so dynamic routes can be
+ * prerendered; the fallback renders the same links without an active state.
+ */
 export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
-  const pathname = usePathname()
+  return (
+    <Suspense fallback={<NavItems pathname={null} onNavigate={onNavigate} />}>
+      <CurrentNav onNavigate={onNavigate} />
+    </Suspense>
+  )
+}
 
+function CurrentNav({ onNavigate }: { onNavigate?: () => void }) {
+  return <NavItems pathname={usePathname()} onNavigate={onNavigate} />
+}
+
+function NavItems({
+  pathname,
+  onNavigate,
+}: {
+  pathname: string | null
+  onNavigate?: () => void
+}) {
   return (
     <nav aria-label="Main" className="flex flex-col gap-0.5">
       {appNav.map((item) => {
@@ -36,7 +57,7 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
           )
         }
 
-        const active = isNavItemActive(pathname, item.href)
+        const active = pathname !== null && isNavItemActive(pathname, item.href)
         return (
           <Link
             key={item.href}

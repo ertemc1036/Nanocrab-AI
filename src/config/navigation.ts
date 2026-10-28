@@ -35,7 +35,7 @@ export const appNav: readonly NavItem[] = [
     icon: BriefcaseBusinessIcon,
     status: "available",
   },
-  { title: "AI CEO", href: "/ceo", icon: SparklesIcon, status: "soon" },
+  { title: "AI CEO", href: "/ceo", icon: SparklesIcon, status: "available" },
   { title: "Business Plan", href: "/plan", icon: ClipboardListIcon, status: "soon" },
   { title: "Tasks", href: "/tasks", icon: ListChecksIcon, status: "soon" },
   { title: "Revenue", href: "/revenue", icon: CircleDollarSignIcon, status: "soon" },
