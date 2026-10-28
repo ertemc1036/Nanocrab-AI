@@ -144,6 +144,32 @@ describe.skipIf(!DATABASE_URL)("database security (RLS, grants, ownership)", () 
     })
   })
 
+  describe("profile backfill migration", () => {
+    it("creates missing profiles for pre-existing users and is idempotent", async () => {
+      const { readFile } = await import("node:fs/promises")
+      const sql = await readFile(
+        "supabase/migrations/20261030000100_backfill_profiles.sql",
+        "utf8"
+      )
+      const legacy = await createAuthUser("  Legacy User  ")
+      // Simulate an account created before the sign-up trigger existed.
+      await rawDb().query("delete from public.profiles where id = $1", [legacy])
+      await rawDb().query(sql)
+      await rawDb().query(sql)
+      const { rows } = await rawDb().query(
+        "select display_name from public.profiles where id = $1",
+        [legacy]
+      )
+      expect(rows).toEqual([{ display_name: "Legacy User" }])
+      // Existing profiles are left untouched.
+      const { rows: alice_ } = await rawDb().query(
+        "select display_name from public.profiles where id = $1",
+        [alice]
+      )
+      expect(alice_[0].display_name).toBe("Alice B")
+    })
+  })
+
   describe("agents", () => {
     it("defaults user_id to the caller", async () => {
       const id = await createAgent(alice, "Default Owner")

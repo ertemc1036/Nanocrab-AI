@@ -2,6 +2,7 @@ import "server-only"
 
 import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
+import { connection } from "next/server"
 
 import { getSupabaseEnv } from "@/lib/env"
 import type { Database } from "@/lib/supabase/database.types"
@@ -21,6 +22,13 @@ export class SupabaseNotConfiguredError extends Error {
 export async function createClient() {
   const env = getSupabaseEnv()
   if (!env) throw new SupabaseNotConfiguredError()
+
+  // Supabase Auth reads the current time (Date.now()) to check and refresh
+  // session expiry, and may rotate tokens. That must only happen while
+  // handling a real request — never while Next.js prerenders a static or
+  // per-session prefetch shell. connection() defers everything after it to
+  // request time. In Server Actions and Route Handlers it resolves immediately.
+  await connection()
 
   const cookieStore = await cookies()
 

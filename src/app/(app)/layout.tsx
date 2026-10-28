@@ -1,5 +1,6 @@
 import { Suspense } from "react"
 
+import { AccountErrorBoundary } from "@/components/layout/account-error-boundary"
 import { AppSidebar } from "@/components/layout/app-sidebar"
 import { MobileHeader } from "@/components/layout/mobile-header"
 import {
@@ -11,9 +12,11 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
   // The shell is static; the account menu streams in once the session is read.
   // Authorization is enforced by each page via requireUser(), not here.
   const account = (
-    <Suspense fallback={<SidebarAccountSkeleton />}>
-      <SidebarAccount />
-    </Suspense>
+    <AccountErrorBoundary>
+      <Suspense fallback={<SidebarAccountSkeleton />}>
+        <SidebarAccount />
+      </Suspense>
+    </AccountErrorBoundary>
   )
 
   return (

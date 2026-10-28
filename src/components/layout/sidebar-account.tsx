@@ -1,12 +1,17 @@
 import { UserMenu } from "@/components/layout/user-menu"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getCurrentUser } from "@/lib/dal/auth"
+import { getMyDisplayName } from "@/lib/dal/profiles"
 
-/** Reads the session, so it must render inside a <Suspense> boundary. */
+/**
+ * Reads the session and profile, so it must render inside a <Suspense>
+ * boundary and an AccountErrorBoundary (see app layout).
+ */
 export async function SidebarAccount() {
   const user = await getCurrentUser()
   if (!user) return null
-  return <UserMenu displayName={user.displayName} email={user.email} />
+  const displayName = await getMyDisplayName()
+  return <UserMenu displayName={displayName} email={user.email} />
 }
 
 export function SidebarAccountSkeleton() {

@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button"
 import { requireUser } from "@/lib/dal/auth"
 import { getCurrentBusiness } from "@/lib/dal/business"
 import { getMyFounderProfile } from "@/lib/dal/founder"
+import { getMyDisplayName } from "@/lib/dal/profiles"
 import { computeJourney, getNextAction } from "@/lib/nanocrab-ceo/journey"
 import { DEFAULT_MODE } from "@/lib/nanocrab-ceo/modes"
 import { displayNameOrEmail } from "@/lib/user-display"
@@ -32,11 +33,15 @@ export default async function CommandCenterPage({
   const profile = await getMyFounderProfile()
   if (!profile?.onboardingCompletedAt) redirect("/onboarding")
 
-  const [business, params] = await Promise.all([getCurrentBusiness(), searchParams])
+  const [business, displayName, params] = await Promise.all([
+    getCurrentBusiness(),
+    getMyDisplayName(),
+    searchParams,
+  ])
   const state = { profile, business }
   const next = getNextAction(state)
   const journey = computeJourney(state)
-  const name = displayNameOrEmail(user.displayName, user.email)
+  const name = displayNameOrEmail(displayName, user.email)
 
   return (
     <div className="space-y-8">

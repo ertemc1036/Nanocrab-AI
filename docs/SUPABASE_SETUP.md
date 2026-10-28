@@ -47,6 +47,21 @@ Afterwards, check **Database → Tables**: `profiles`, `agents`,
 `agent_memories`, `conversations`, `messages` and `usage_events` should all
 show **RLS enabled**.
 
+### Verify the project
+
+```bash
+npm run supabase:check
+```
+
+This uses only the publishable key from `.env.local` (values are never
+printed) and reports whether Auth is reachable, whether every table and
+function from the migrations exists, and whether any table is readable without
+signing in (it must not be).
+
+If accounts were created before the migrations were applied, the
+`20261030000100_backfill_profiles.sql` migration creates their missing
+`profiles` rows; it's safe to run more than once.
+
 ## 4. Configure Authentication
 
 **Authentication → URL Configuration**
@@ -85,6 +100,10 @@ and emails. These are NanoCrab's rate limiting for auth endpoints.
 testing. Configure a custom SMTP provider before inviting real users.
 
 ## 5. Run and verify
+
+If a signed-in page shows **"Database setup required"** (development) or the
+server log shows `DatabaseSchemaError … PGRST205`, the migrations haven't been
+applied to the project in `.env.local`. Run `npm run supabase:check`.
 
 ```bash
 npm run dev
