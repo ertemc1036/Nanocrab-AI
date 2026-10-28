@@ -1,133 +1,171 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { redirect } from "next/navigation"
 import {
   ArrowRightIcon,
-  BotIcon,
-  BrainIcon,
-  MessagesSquareIcon,
+  BriefcaseBusinessIcon,
+  CircleDollarSignIcon,
+  CompassIcon,
+  ListChecksIcon,
   SparklesIcon,
-  type LucideIcon,
 } from "lucide-react"
 
+import { JourneyCard } from "@/components/command-center/journey-card"
+import { ModeCard } from "@/components/command-center/mode-card"
+import { StatusTile } from "@/components/command-center/status-tile"
 import { FormAlert } from "@/components/forms/form-alert"
-import { CreateAgentButton } from "@/components/layout/create-agent-button"
 import { PageHeader } from "@/components/layout/page-header"
-import { EmptyState } from "@/components/shared/empty-state"
 import { Button } from "@/components/ui/button"
 import { requireUser } from "@/lib/dal/auth"
-import { getWorkspaceSummary } from "@/lib/dal/workspace"
+import { getCurrentBusiness } from "@/lib/dal/business"
+import { getMyFounderProfile } from "@/lib/dal/founder"
+import { computeJourney, getNextAction } from "@/lib/nanocrab-ceo/journey"
+import { DEFAULT_MODE } from "@/lib/nanocrab-ceo/modes"
 import { displayNameOrEmail } from "@/lib/user-display"
 
-export const metadata: Metadata = { title: "Overview" }
+export const metadata: Metadata = { title: "Command Center" }
 
-const gettingStarted = [
-  {
-    icon: BotIcon,
-    title: "Create an agent",
-    description: "Pick a template or start from scratch and give it a purpose.",
-  },
-  {
-    icon: BrainIcon,
-    title: "Add memory",
-    description: "Teach your agent the facts and preferences it should always know.",
-  },
-  {
-    icon: MessagesSquareIcon,
-    title: "Start a conversation",
-    description: "Chat with your agent — it answers using your configuration.",
-  },
-]
-
-export default async function DashboardPage({ searchParams }: PageProps<"/dashboard">) {
+export default async function CommandCenterPage({
+  searchParams,
+}: PageProps<"/dashboard">) {
   const user = await requireUser()
-  const [summary, params] = await Promise.all([getWorkspaceSummary(), searchParams])
+  const profile = await getMyFounderProfile()
+  if (!profile?.onboardingCompletedAt) redirect("/onboarding")
+
+  const [business, params] = await Promise.all([getCurrentBusiness(), searchParams])
+  const state = { profile, business }
+  const next = getNextAction(state)
+  const journey = computeJourney(state)
   const name = displayNameOrEmail(user.displayName, user.email)
 
-  const stats: { label: string; value: number; icon: LucideIcon }[] = [
-    { label: "Agents", value: summary.agents, icon: BotIcon },
-    { label: "Conversations", value: summary.conversations, icon: MessagesSquareIcon },
-    { label: "Memory notes", value: summary.memories, icon: BrainIcon },
-    {
-      label: "AI responses this month",
-      value: summary.aiResponsesThisMonth,
-      icon: SparklesIcon,
-    },
-  ]
-
   return (
-    <div className="space-y-10">
+    <div className="space-y-8">
       {params.password === "updated" ? (
         <FormAlert
           state={{ status: "success", message: "Your password has been updated." }}
         />
       ) : null}
 
-      <PageHeader
-        title={`Welcome, ${name}`}
-        description="Create your own AI. Give it a purpose. Make it work for you."
-        actions={<CreateAgentButton />}
-      />
+      <PageHeader title="Command Center" description={`Welcome back, ${name}.`} />
 
-      <section aria-labelledby="usage" className="space-y-4">
-        <h2 id="usage" className="text-sm font-medium text-muted-foreground">
-          Your workspace
-        </h2>
-        <dl className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          {stats.map(({ label, value, icon: Icon }) => (
-            <div key={label} className="rounded-xl border bg-card p-5">
-              <dt className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                <Icon className="size-3.5" />
-                {label}
-              </dt>
-              <dd className="mt-3 text-2xl font-semibold tracking-tight tabular-nums">
-                {value.toLocaleString()}
-              </dd>
-            </div>
-          ))}
-        </dl>
-      </section>
-
-      {summary.agents === 0 ? (
-        <>
-          <section aria-labelledby="getting-started" className="space-y-4">
-            <h2
-              id="getting-started"
-              className="text-sm font-medium text-muted-foreground"
+      <div className="grid gap-6 lg:grid-cols-3">
+        <section
+          aria-labelledby="next-action"
+          className="flex flex-col rounded-2xl border bg-card p-6 lg:col-span-2"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <p className="flex items-center gap-2 text-xs font-medium text-primary">
+              <CompassIcon className="size-3.5" />
+              Next recommended action
+            </p>
+            <span
+              className="rounded-full border px-2 py-0.5 text-[11px] text-muted-foreground"
+              title="Based on your profile and progress, not generated by AI"
             >
-              Getting started
-            </h2>
-            <ol className="grid gap-4 md:grid-cols-3">
-              {gettingStarted.map(({ icon: Icon, title, description }, i) => (
-                <li key={title} className="rounded-xl border bg-card p-5">
-                  <div className="flex items-center justify-between">
-                    <div className="flex size-9 items-center justify-center rounded-lg bg-secondary ring-1 ring-border">
-                      <Icon className="size-4 text-primary" />
-                    </div>
-                    <span className="font-mono text-xs text-muted-foreground">
-                      0{i + 1}
-                    </span>
-                  </div>
-                  <h3 className="mt-4 text-sm font-semibold">{title}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-                </li>
-              ))}
-            </ol>
-          </section>
-          <EmptyState
-            icon={BotIcon}
-            title="No agents yet"
-            description="Your agents will appear here. Create your first one to get started."
-            action={<CreateAgentButton />}
+              Rule-based
+            </span>
+          </div>
+          <h2
+            id="next-action"
+            className="mt-4 text-xl font-semibold tracking-tight text-balance"
+          >
+            {next.title}
+          </h2>
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
+            {next.reason}
+          </p>
+          <div className="mt-auto pt-6">
+            {next.href && next.cta ? (
+              <Button asChild className="font-semibold">
+                <Link href={next.href}>
+                  {next.cta}
+                  <ArrowRightIcon />
+                </Link>
+              </Button>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                Nothing to do here yet — this action unlocks when the feature ships.
+              </p>
+            )}
+          </div>
+        </section>
+
+        <ModeCard mode={business?.operatingMode ?? DEFAULT_MODE} />
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <section
+          aria-labelledby="current-business"
+          className="rounded-2xl border bg-card p-6"
+        >
+          <p className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+            <BriefcaseBusinessIcon className="size-3.5" />
+            Current business
+          </p>
+          {business ? (
+            <>
+              <h2
+                id="current-business"
+                className="mt-3 text-lg font-semibold tracking-tight"
+              >
+                {business.name}
+              </h2>
+              {business.description ? (
+                <p className="mt-1 line-clamp-4 text-sm text-muted-foreground">
+                  {business.description}
+                </p>
+              ) : null}
+              <Button asChild variant="outline" size="sm" className="mt-5">
+                <Link href="/business">Open workspace</Link>
+              </Button>
+            </>
+          ) : (
+            <>
+              <h2
+                id="current-business"
+                className="mt-3 text-lg font-semibold tracking-tight"
+              >
+                No business yet
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Create a workspace so NanoCrab can track your progress.
+              </p>
+              <Button asChild variant="outline" size="sm" className="mt-5">
+                <Link href="/business">Create workspace</Link>
+              </Button>
+            </>
+          )}
+        </section>
+        <div className="lg:col-span-2">
+          <JourneyCard milestones={journey} />
+        </div>
+      </div>
+
+      <section aria-labelledby="coming-next" className="space-y-4">
+        <h2 id="coming-next" className="text-sm font-medium text-muted-foreground">
+          Progress
+        </h2>
+        <div className="grid gap-4 md:grid-cols-3">
+          <StatusTile
+            icon={ListChecksIcon}
+            title="Task progress"
+            status="No tasks yet"
+            note="Your AI CEO will break your plan into tasks you approve."
           />
-        </>
-      ) : (
-        <Button asChild variant="outline">
-          <Link href="/agents">
-            View your agents
-            <ArrowRightIcon />
-          </Link>
-        </Button>
-      )}
+          <StatusTile
+            icon={SparklesIcon}
+            title="AI recommendations"
+            status="No recommendations yet"
+            note="Recommendations from your AI CEO will appear here."
+          />
+          <StatusTile
+            icon={CircleDollarSignIcon}
+            title="Revenue progress"
+            status="No revenue recorded"
+            note="Record and verify your first revenue to reach the Co-Founder milestone."
+          />
+        </div>
+      </section>
     </div>
   )
 }

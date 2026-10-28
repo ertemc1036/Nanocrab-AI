@@ -10,103 +10,40 @@
  */
 import { randomUUID } from "node:crypto"
 
-import { Client, type QueryResultRow } from "pg"
+import { Client } from "pg"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 
-const DATABASE_URL = process.env.DATABASE_URL
-
-type Role = "anon" | "authenticated"
-
-let db: Client
-
-/** Runs `fn` in a transaction as the given role, with `sub` as the JWT subject. */
-async function as<T>(
-  role: Role,
-  sub: string | null,
-  fn: (
-    q: <R extends QueryResultRow>(sql: string, params?: unknown[]) => Promise<R[]>
-  ) => Promise<T>
-): Promise<T> {
-  await db.query("begin")
-  try {
-    await db.query(`set local role ${role}`)
-    await db.query("select set_config('request.jwt.claims', $1, true)", [
-      JSON.stringify(sub ? { sub, role } : { role }),
-    ])
-    const result = await fn(async (sql, params) => (await db.query(sql, params)).rows)
-    await db.query("commit")
-    return result
-  } catch (error) {
-    await db.query("rollback")
-    throw error
-  }
-}
-
-const asUser = <T>(userId: string, fn: Parameters<typeof as<T>>[2]): Promise<T> =>
-  as("authenticated", userId, fn)
-
-/** Expects the promise to fail with the given Postgres SQLSTATE code. */
-async function expectPgError(promise: Promise<unknown>, code: string) {
-  await expect(promise).rejects.toMatchObject({ code })
-}
-
-async function createAuthUser(displayName?: string): Promise<string> {
-  const id = randomUUID()
-  await db.query(
-    "insert into auth.users (id, email, raw_user_meta_data) values ($1, $2, $3)",
-    [
-      id,
-      `${id}@example.test`,
-      JSON.stringify(displayName ? { display_name: displayName } : {}),
-    ]
-  )
-  return id
-}
-
-async function createAgent(userId: string, name = "Test Agent"): Promise<string> {
-  const rows = await asUser(userId, (q) =>
-    q<{ id: string }>("insert into public.agents (name) values ($1) returning id", [name])
-  )
-  return rows[0]!.id
-}
-
-async function createConversation(userId: string, agentId: string): Promise<string> {
-  const rows = await asUser(userId, (q) =>
-    q<{ id: string }>(
-      "insert into public.conversations (user_id, agent_id) values ($1, $2) returning id",
-      [userId, agentId]
-    )
-  )
-  return rows[0]!.id
-}
-
-const USER_TABLES = [
-  "profiles",
-  "agents",
-  "agent_memories",
-  "conversations",
-  "messages",
-  "usage_events",
-] as const
+import {
+  as,
+  asUser,
+  connectDb,
+  createAgent,
+  createAuthUser,
+  createConversation,
+  DATABASE_URL,
+  disconnectDb,
+  expectPgError,
+  rawDb,
+  USER_TABLES,
+} from "./helpers"
 
 describe.skipIf(!DATABASE_URL)("database security (RLS, grants, ownership)", () => {
   let alice: string
   let bob: string
 
   beforeAll(async () => {
-    db = new Client({ connectionString: DATABASE_URL })
-    await db.connect()
+    await connectDb()
     alice = await createAuthUser("  Alice  ")
     bob = await createAuthUser("Bob")
   })
 
   afterAll(async () => {
-    await db?.end()
+    await disconnectDb()
   })
 
   describe("schema hardening", () => {
     it("enables row level security on every user-data table", async () => {
-      const { rows } = await db.query<{ relname: string; relrowsecurity: boolean }>(
+      const { rows } = await rawDb().query<{ relname: string; relrowsecurity: boolean }>(
         `select c.relname, c.relrowsecurity from pg_class c
          join pg_namespace n on n.oid = c.relnamespace
          where n.nspname = 'public' and c.relkind = 'r'`
@@ -162,7 +99,7 @@ describe.skipIf(!DATABASE_URL)("database security (RLS, grants, ownership)", () 
       await asUser(alice, (q) =>
         q("update public.profiles set display_name = 'Alice B' where id = $1", [alice])
       )
-      const { rows } = await db.query(
+      const { rows } = await rawDb().query(
         "select display_name from public.profiles where id = $1",
         [alice]
       )
@@ -186,7 +123,7 @@ describe.skipIf(!DATABASE_URL)("database security (RLS, grants, ownership)", () 
         )
       )
       expect(rows).toHaveLength(0)
-      const { rows: bobRows } = await db.query(
+      const { rows: bobRows } = await rawDb().query(
         "select display_name from public.profiles where id = $1",
         [bob]
       )
@@ -210,9 +147,10 @@ describe.skipIf(!DATABASE_URL)("database security (RLS, grants, ownership)", () 
   describe("agents", () => {
     it("defaults user_id to the caller", async () => {
       const id = await createAgent(alice, "Default Owner")
-      const { rows } = await db.query("select user_id from public.agents where id = $1", [
-        id,
-      ])
+      const { rows } = await rawDb().query(
+        "select user_id from public.agents where id = $1",
+        [id]
+      )
       expect(rows[0].user_id).toBe(alice)
     })
 
@@ -234,9 +172,10 @@ describe.skipIf(!DATABASE_URL)("database security (RLS, grants, ownership)", () 
       )
       expect(updated).toHaveLength(0)
       expect(deleted).toHaveLength(0)
-      const { rows } = await db.query("select name from public.agents where id = $1", [
-        id,
-      ])
+      const { rows } = await rawDb().query(
+        "select name from public.agents where id = $1",
+        [id]
+      )
       expect(rows[0].name).toBe("Mine")
     })
 
@@ -437,7 +376,7 @@ describe.skipIf(!DATABASE_URL)("database security (RLS, grants, ownership)", () 
         )
         await q("delete from public.agents where id = $1", [agentId])
       })
-      const { rows } = await db.query(
+      const { rows } = await rawDb().query(
         `select
            (select count(*) from public.conversations where agent_id = $1)::int as conversations,
            (select count(*) from public.messages where conversation_id = $2)::int as messages,
@@ -530,7 +469,7 @@ describe.skipIf(!DATABASE_URL)("database security (RLS, grants, ownership)", () 
 
       await asUser(carol, (q) => q("select public.delete_my_account()"))
 
-      const { rows } = await db.query(
+      const { rows } = await rawDb().query(
         `select
            (select count(*) from auth.users where id = $1)::int as users,
            (select count(*) from public.profiles where id = $1)::int as profiles,

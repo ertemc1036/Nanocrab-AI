@@ -6,14 +6,37 @@ import { usePathname } from "next/navigation"
 import { appNav, isNavItemActive } from "@/config/navigation"
 import { cn } from "@/lib/utils"
 
+const itemBase =
+  "group relative flex h-9 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors"
+
 export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname()
 
   return (
     <nav aria-label="Main" className="flex flex-col gap-0.5">
       {appNav.map((item) => {
-        const active = isNavItemActive(pathname, item.href)
         const Icon = item.icon
+
+        if (item.status === "soon") {
+          return (
+            <span
+              key={item.href}
+              aria-disabled="true"
+              className={cn(
+                itemBase,
+                "cursor-default text-sidebar-foreground/35 select-none"
+              )}
+            >
+              <Icon className="size-4" />
+              {item.title}
+              <span className="ml-auto rounded-full border border-sidebar-border px-1.5 py-px text-[10px] font-medium tracking-wide text-sidebar-foreground/45 uppercase">
+                Soon
+              </span>
+            </span>
+          )
+        }
+
+        const active = isNavItemActive(pathname, item.href)
         return (
           <Link
             key={item.href}
@@ -21,7 +44,7 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
             onClick={onNavigate}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "group relative flex h-9 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors",
+              itemBase,
               "outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring",
               active
                 ? "bg-sidebar-accent text-sidebar-accent-foreground"

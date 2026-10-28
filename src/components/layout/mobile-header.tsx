@@ -5,7 +5,6 @@ import { MenuIcon } from "lucide-react"
 import { useState, type ReactNode } from "react"
 
 import { Logo } from "@/components/brand/logo"
-import { CreateAgentButton } from "@/components/layout/create-agent-button"
 import { SidebarNav } from "@/components/layout/sidebar-nav"
 import { Button } from "@/components/ui/button"
 import {
@@ -40,10 +39,7 @@ export function MobileHeader({ footer }: { footer?: ReactNode }) {
             </SheetTitle>
             <SheetDescription className="sr-only">Main navigation</SheetDescription>
           </SheetHeader>
-          <div className="px-3 pb-4">
-            <CreateAgentButton className="w-full" onClick={close} />
-          </div>
-          <div className="flex-1 px-3">
+          <div className="flex-1 px-3 pt-2">
             <SidebarNav onNavigate={close} />
           </div>
           {footer ? (

@@ -37,8 +37,8 @@ export function DeleteAccountDialog() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete your account?</AlertDialogTitle>
             <AlertDialogDescription>
-              This permanently deletes your account, agents, memories and conversations.
-              This can&apos;t be undone.
+              This permanently deletes your account, founder profile, businesses and all
+              related data. This can&apos;t be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <FormAlert state={state} />

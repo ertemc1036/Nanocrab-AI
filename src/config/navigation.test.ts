@@ -29,4 +29,22 @@ describe("appNav", () => {
     const hrefs = appNav.map((item) => item.href)
     expect(new Set(hrefs).size).toBe(hrefs.length)
   })
+
+  it("follows the business workspace order", () => {
+    expect(appNav.map((item) => item.title)).toEqual([
+      "Command Center",
+      "My Business",
+      "AI CEO",
+      "Business Plan",
+      "Tasks",
+      "Revenue",
+      "Memory",
+      "Settings",
+    ])
+  })
+
+  it("only marks implemented sections as available", () => {
+    const available = appNav.filter((i) => i.status === "available").map((i) => i.href)
+    expect(available).toEqual(["/dashboard", "/business", "/settings"])
+  })
 })

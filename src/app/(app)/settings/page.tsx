@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
-import { LogOutIcon } from "lucide-react"
+import Link from "next/link"
+import { LogOutIcon, PencilIcon } from "lucide-react"
 import type { ReactNode } from "react"
 
 import { SubmitButton } from "@/components/forms/submit-button"
@@ -8,6 +9,7 @@ import { ChangePasswordForm } from "@/components/settings/change-password-form"
 import { DeleteAccountDialog } from "@/components/settings/delete-account-dialog"
 import { ProfileForm } from "@/components/settings/profile-form"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -38,6 +40,24 @@ export default async function SettingsPage() {
         </CardHeader>
         <CardContent>
           <ProfileForm displayName={profile.displayName} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Founder profile</CardTitle>
+          <CardDescription>
+            Your goals, skills, time, budget and preferences. NanoCrab uses these to
+            tailor its recommendations.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button asChild variant="outline">
+            <Link href="/onboarding">
+              <PencilIcon />
+              Edit founder profile
+            </Link>
+          </Button>
         </CardContent>
       </Card>
 

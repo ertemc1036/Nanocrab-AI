@@ -29,6 +29,14 @@ agents(id, user_id)` — mean a row can never reference another user's agent
 - **Account deletion** uses `delete_my_account()` (`security definer`),
   which can only delete the caller's own auth user; everything cascades.
 - **No service-role key** is used anywhere in the app.
+- **Founder data (Stage 1)**: `founder_profiles` and `businesses` follow the
+  same model. `businesses.operating_mode` has no insert/update grant, so mode
+  changes can only happen through a future audited function (Stage 4).
+  `founder_profiles.current_business_id` uses a composite FK, so it can only
+  point at the founder's own business, and is cleared (not cascaded) if that
+  business is deleted. The onboarding schema stores no sensitive identifiers
+  (no address, birth date or ID numbers); budget is optional and stored only
+  as the founder entered it.
 
 ## Application guarantees
 
@@ -48,10 +56,10 @@ agents(id, user_id)` — mean a row can never reference another user's agent
 
 ## Automated tests
 
-| Command           | What it covers                                                                                                                                                                                                                                                                                                        |
-| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm test`        | Validation rules, open-redirect protection, route classification, proxy redirects (signed in/out, fail-closed), auth & settings Server Actions (Supabase mocked), email-link confirmation route, error mapping.                                                                                                       |
-| `npm run test:db` | Applies the real migrations to a throwaway PostgreSQL and runs RLS/grant/ownership tests as the `anon` and `authenticated` roles with simulated JWTs: cross-user read/write/delete attempts, spoofed `user_id`, cross-user foreign keys, column privileges, usage ledger, account deletion, cascades, and type drift. |
+| Command           | What it covers                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm test`        | Validation rules, open-redirect protection, route classification, proxy redirects (signed in/out, fail-closed), auth & settings Server Actions (Supabase mocked), email-link confirmation route, error mapping.                                                                                                                                                                                                                     |
+| `npm run test:db` | Applies the real migrations to a throwaway PostgreSQL and runs RLS/grant/ownership tests as the `anon` and `authenticated` roles with simulated JWTs: cross-user read/write/delete attempts, spoofed `user_id`, cross-user foreign keys, column privileges, usage ledger, account deletion, cascades, type drift, and founder profile / business isolation (including the read-only operating mode and current-business ownership). |
 
 `test:db` uses a small stand-in for Supabase's `auth` schema
 (`supabase/tests/db/supabase-shim.sql`) that mirrors Supabase's default
@@ -94,6 +102,22 @@ REST client with each user's access token and the publishable key)
       is rejected.
 - [ ] Dashboard → **Database → Tables** shows RLS enabled on all six tables,
       and **Advisors → Security Advisor** reports no RLS warnings.
+
+**Founder workspace (Stage 1)**
+
+- [ ] New account → after confirming email, `/dashboard` redirects to
+      `/onboarding`.
+- [ ] Complete onboarding skipping several questions → Command Center shows
+      the profile milestone done and the skipped items as unknown on My
+      Business.
+- [ ] Edit the founder profile from Settings → answers are pre-filled and
+      changes persist.
+- [ ] Create and rename a business → it appears as the current business.
+- [ ] As B, `PATCH /rest/v1/businesses?id=eq.<A's business>` changes nothing;
+      `PATCH` of B's own business with `{"operating_mode":"cofounder"}` is
+      rejected.
+- [ ] As B, `PATCH /rest/v1/founder_profiles` with A's business id as
+      `current_business_id` is rejected.
 
 Agent/conversation/memory isolation becomes testable through the UI in
 Phases 3–5; it's already covered at the database level by `npm run test:db`.

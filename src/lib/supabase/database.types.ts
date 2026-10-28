@@ -264,6 +264,107 @@ export type Database = {
           },
         ]
       }
+      businesses: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          description: string
+          origin: string
+          status: string
+          operating_mode: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string
+          name: string
+          description?: string
+          origin?: string
+          status?: string
+          operating_mode?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          name?: string
+          description?: string
+          origin?: string
+          status?: string
+          operating_mode?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      founder_profiles: {
+        Row: {
+          user_id: string
+          goal: string
+          goal_details: string
+          skills: string[]
+          interests: string[]
+          weekly_hours: number | null
+          budget_amount: number | null
+          budget_currency: string | null
+          business_preference: string | null
+          has_idea: boolean | null
+          idea_description: string
+          country_code: string | null
+          current_business_id: string | null
+          onboarding_completed_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          user_id?: string
+          goal: string
+          goal_details?: string
+          skills?: string[]
+          interests?: string[]
+          weekly_hours?: number | null
+          budget_amount?: number | null
+          budget_currency?: string | null
+          business_preference?: string | null
+          has_idea?: boolean | null
+          idea_description?: string
+          country_code?: string | null
+          current_business_id?: string | null
+          onboarding_completed_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          user_id?: string
+          goal?: string
+          goal_details?: string
+          skills?: string[]
+          interests?: string[]
+          weekly_hours?: number | null
+          budget_amount?: number | null
+          budget_currency?: string | null
+          business_preference?: string | null
+          has_idea?: boolean | null
+          idea_description?: string
+          country_code?: string | null
+          current_business_id?: string | null
+          onboarding_completed_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "founder_profiles_current_business_id_user_id_fkey"
+            columns: ["current_business_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id", "user_id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

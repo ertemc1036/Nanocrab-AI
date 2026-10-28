@@ -19,6 +19,8 @@ export async function updateProfileAction(
   _prev: FormState,
   formData: FormData
 ): Promise<FormState> {
+  // Outside any try/catch so the sign-in redirect isn't swallowed.
+  await requireUser()
   const input = readForm(formData, ["displayName"] as const)
   const parsed = updateProfileSchema.safeParse(input)
   if (!parsed.success) {
@@ -80,6 +82,7 @@ export async function deleteAccountAction(
   _prev: FormState,
   formData: FormData
 ): Promise<FormState> {
+  await requireUser()
   const parsed = deleteAccountSchema.safeParse(
     readForm(formData, ["confirmation"] as const)
   )

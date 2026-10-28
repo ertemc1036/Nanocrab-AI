@@ -1,88 +1,84 @@
 import Link from "next/link"
 import {
   ArrowRightIcon,
-  BrainIcon,
-  CalendarClockIcon,
-  FileTextIcon,
-  GaugeIcon,
+  BriefcaseBusinessIcon,
+  CircleDollarSignIcon,
+  ClipboardListIcon,
+  CrownIcon,
+  HandshakeIcon,
   LockKeyholeIcon,
-  MessagesSquareIcon,
-  NetworkIcon,
-  SlidersHorizontalIcon,
+  ScaleIcon,
+  SearchCheckIcon,
+  ShieldCheckIcon,
   SparklesIcon,
-  WrenchIcon,
+  UserRoundIcon,
   type LucideIcon,
 } from "lucide-react"
 
 import { Logo } from "@/components/brand/logo"
-import { AgentPreview } from "@/components/marketing/agent-preview"
+import { CeoPreview } from "@/components/marketing/ceo-preview"
 import { SiteHeader } from "@/components/marketing/site-header"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { siteConfig } from "@/config/site"
-
-const features: { icon: LucideIcon; title: string; description: string }[] = [
-  {
-    icon: SparklesIcon,
-    title: "Create in minutes",
-    description:
-      "Start from a template — Study Coach, Coding Assistant, Startup Advisor — or build a completely custom agent from scratch.",
-  },
-  {
-    icon: SlidersHorizontalIcon,
-    title: "Shape its personality",
-    description:
-      "Define purpose, tone, language and custom instructions. Your agent behaves the way you decide.",
-  },
-  {
-    icon: BrainIcon,
-    title: "Persistent memory",
-    description:
-      "Give each agent structured knowledge notes it can draw on in every conversation — editable any time.",
-  },
-  {
-    icon: MessagesSquareIcon,
-    title: "Real conversations",
-    description:
-      "Streamed responses from a frontier model, with full history you can rename, revisit and delete.",
-  },
-  {
-    icon: LockKeyholeIcon,
-    title: "Private by design",
-    description:
-      "Every agent, memory and message is isolated to your account with database-level access control.",
-  },
-  {
-    icon: GaugeIcon,
-    title: "Usage you can see",
-    description:
-      "Transparent usage tracking and sensible limits, so there are no surprises.",
-  },
-]
+import { MODES } from "@/lib/nanocrab-ceo/modes"
 
 const steps = [
   {
-    title: "Give it a purpose",
+    title: "Tell NanoCrab where you're starting",
     description:
-      "Name your agent, pick a template or start blank, and describe what it's for.",
+      "Your goals, skills, time and budget. Nothing is assumed that you didn't share.",
   },
   {
-    title: "Teach it what matters",
+    title: "Choose an opportunity",
     description:
-      "Add memory notes — your projects, preferences and context it should always know.",
+      "A few realistic options, evaluated on cost, effort, customers and risk. You pick.",
   },
   {
-    title: "Put it to work",
+    title: "Execute the plan",
     description:
-      "Chat any time. Your agent answers with your rules, your knowledge, your style.",
+      "Your AI CEO breaks the plan into tasks and recommends the next action, every day.",
+  },
+  {
+    title: "Earn your first revenue",
+    description:
+      "Then you take the lead as CEO, and NanoCrab becomes your AI Co-Founder.",
   },
 ]
 
-const roadmap: { icon: LucideIcon; title: string }[] = [
-  { icon: WrenchIcon, title: "Approved external tools" },
-  { icon: FileTextIcon, title: "Document knowledge bases" },
-  { icon: CalendarClockIcon, title: "Scheduled automations" },
-  { icon: NetworkIcon, title: "Agents that collaborate" },
+const availability: { icon: LucideIcon; title: string; available: boolean }[] = [
+  { icon: UserRoundIcon, title: "Founder onboarding & profile", available: true },
+  { icon: BriefcaseBusinessIcon, title: "Business workspace & journey", available: true },
+  { icon: LockKeyholeIcon, title: "Private, isolated data", available: true },
+  { icon: SparklesIcon, title: "AI CEO conversations", available: false },
+  { icon: SearchCheckIcon, title: "Opportunity evaluation", available: false },
+  { icon: ClipboardListIcon, title: "Business plans & tasks", available: false },
+  {
+    icon: CircleDollarSignIcon,
+    title: "Revenue milestone & Co-Founder mode",
+    available: false,
+  },
+]
+
+const principles: { icon: LucideIcon; title: string; description: string }[] = [
+  {
+    icon: ShieldCheckIcon,
+    title: "You stay in control",
+    description:
+      "NanoCrab proposes and organizes. You approve every significant decision and every action that touches the real world.",
+  },
+  {
+    icon: ScaleIcon,
+    title: "Facts, not hype",
+    description:
+      "Research is separated from assumptions. No invented market data, no made-up projections.",
+  },
+  {
+    icon: CircleDollarSignIcon,
+    title: "No income guarantees",
+    description:
+      "NanoCrab helps you build and test a business. Whether it earns money depends on you and your market.",
+  },
 ]
 
 export default function LandingPage() {
@@ -94,20 +90,20 @@ export default function LandingPage() {
         <section className="relative overflow-hidden">
           <div aria-hidden="true" className="bg-grid absolute inset-0 -z-10" />
           <div aria-hidden="true" className="bg-glow absolute inset-0 -z-10" />
-          <div className="mx-auto max-w-6xl px-4 pt-20 pb-16 text-center sm:px-6 sm:pt-28">
+          <div className="mx-auto max-w-6xl px-4 pt-20 pb-14 text-center sm:px-6 sm:pt-28">
             <Badge
               variant="outline"
               className="mb-6 gap-1.5 rounded-full bg-background/50 px-3 py-1 text-muted-foreground backdrop-blur"
             >
               <span className="size-1.5 rounded-full bg-primary" />
-              Personal AI agents, built by you
+              Your personal AI CEO
             </Badge>
             <h1 className="text-gradient-brand mx-auto max-w-3xl text-5xl leading-[1.05] font-semibold tracking-tight text-balance sm:text-7xl">
-              {siteConfig.tagline}
+              From zero to founder.
             </h1>
             <p className="mx-auto mt-6 max-w-xl text-base text-pretty text-muted-foreground sm:text-lg">
-              Create your own AI. Give it a purpose. Make it work for you — no code
-              required.
+              NanoCrab leads the process until you earn your first revenue. Then you
+              become the CEO, and NanoCrab becomes your AI Co-Founder.
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Button
@@ -116,7 +112,7 @@ export default function LandingPage() {
                 className="h-11 px-6 font-semibold shadow-[0_10px_30px_-10px_var(--primary)]"
               >
                 <Link href="/signup">
-                  Create your first agent
+                  Start your journey
                   <ArrowRightIcon />
                 </Link>
               </Button>
@@ -126,37 +122,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="px-4 pb-24 sm:px-6">
-            <AgentPreview />
-          </div>
-        </section>
-
-        {/* Features */}
-        <section id="features" className="scroll-mt-16 border-t border-border/60">
-          <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
-            <div className="max-w-2xl">
-              <p className="font-mono text-xs tracking-widest text-primary uppercase">
-                Features
-              </p>
-              <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-                Not another chatbot. Your own AI, configured your way.
-              </h2>
-            </div>
-            <div className="mt-14 grid gap-px overflow-hidden rounded-2xl border sm:grid-cols-2 lg:grid-cols-3">
-              {features.map(({ icon: Icon, title, description }) => (
-                <div
-                  key={title}
-                  className="group bg-card/60 p-6 transition-colors hover:bg-card sm:p-8"
-                >
-                  <div className="flex size-10 items-center justify-center rounded-xl bg-secondary ring-1 ring-border">
-                    <Icon className="size-5 text-primary" />
-                  </div>
-                  <h3 className="mt-5 font-semibold tracking-tight">{title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {description}
-                  </p>
-                </div>
-              ))}
-            </div>
+            <CeoPreview />
           </div>
         </section>
 
@@ -168,16 +134,14 @@ export default function LandingPage() {
                 How it works
               </p>
               <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-                Three steps from idea to a working agent.
+                A structured path to your first customer and first revenue.
               </h2>
             </div>
-            <ol className="mt-14 grid gap-6 md:grid-cols-3">
+            <ol className="mt-14 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               {steps.map((step, i) => (
-                <li key={step.title} className="rounded-2xl border bg-card/60 p-6 sm:p-8">
+                <li key={step.title} className="rounded-2xl border bg-card/60 p-6">
                   <span className="font-mono text-sm text-primary">0{i + 1}</span>
-                  <h3 className="mt-4 text-lg font-semibold tracking-tight">
-                    {step.title}
-                  </h3>
+                  <h3 className="mt-4 font-semibold tracking-tight">{step.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                     {step.description}
                   </p>
@@ -187,32 +151,115 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Roadmap — clearly labelled as planned, not available */}
+        {/* Two modes */}
+        <section id="features" className="scroll-mt-16 border-t border-border/60">
+          <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+            <div className="max-w-2xl">
+              <p className="font-mono text-xs tracking-widest text-primary uppercase">
+                Two modes
+              </p>
+              <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+                It leads while you learn. Then it follows your lead.
+              </h2>
+            </div>
+            <div className="mt-14 grid gap-6 md:grid-cols-2">
+              {(["ceo", "cofounder"] as const).map((id) => {
+                const mode = MODES[id]
+                const Icon = id === "ceo" ? CrownIcon : HandshakeIcon
+                return (
+                  <div
+                    key={id}
+                    className={
+                      id === "ceo"
+                        ? "border-gradient rounded-2xl p-6 sm:p-8"
+                        : "rounded-2xl border bg-card/60 p-6 sm:p-8"
+                    }
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex size-10 items-center justify-center rounded-xl bg-secondary ring-1 ring-border">
+                        <Icon className="size-5 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold tracking-tight">{mode.name}</h3>
+                        <p className="text-xs text-muted-foreground">
+                          NanoCrab: {mode.aiRole} · You: {mode.founderRole}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
+                      {mode.summary}
+                    </p>
+                    <ul className="mt-5 grid gap-2 text-sm">
+                      {mode.responsibilities.map((r) => (
+                        <li key={r} className="flex gap-2">
+                          <span className="mt-2 size-1 shrink-0 rounded-full bg-primary" />
+                          {r}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* Principles */}
+        <section className="border-t border-border/60">
+          <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+            <div className="grid gap-px overflow-hidden rounded-2xl border md:grid-cols-3">
+              {principles.map(({ icon: Icon, title, description }) => (
+                <div key={title} className="bg-card/60 p-6 sm:p-8">
+                  <Icon className="size-5 text-primary" />
+                  <h3 className="mt-4 font-semibold tracking-tight">{title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    {description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Availability — honest about what exists today */}
         <section id="roadmap" className="scroll-mt-16 border-t border-border/60">
           <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
-            <div className="flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between">
-              <div className="max-w-xl">
+            <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
+              <div className="max-w-md">
                 <p className="font-mono text-xs tracking-widest text-primary uppercase">
-                  On the roadmap
+                  Building in the open
                 </p>
                 <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-                  Built to grow into your personal AI operating system.
+                  What you can use today.
                 </h2>
                 <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                  These capabilities are planned and not yet available. We&apos;ll ship
-                  them when they&apos;re safe and reliable.
+                  NanoCrab is early. We ship each capability when it&apos;s reliable, and
+                  label everything else clearly.
                 </p>
               </div>
-              <ul className="grid gap-3 sm:grid-cols-2 lg:w-[520px]">
-                {roadmap.map(({ icon: Icon, title }) => (
+              <ul className="grid gap-3 sm:grid-cols-2 lg:w-[560px]">
+                {availability.map(({ icon: Icon, title, available }) => (
                   <li
                     key={title}
-                    className="flex items-center gap-3 rounded-xl border border-dashed bg-card/40 px-4 py-3.5"
+                    className={
+                      available
+                        ? "flex items-center gap-3 rounded-xl border bg-card px-4 py-3.5"
+                        : "flex items-center gap-3 rounded-xl border border-dashed bg-card/40 px-4 py-3.5"
+                    }
                   >
-                    <Icon className="size-4 shrink-0 text-muted-foreground" />
+                    <Icon
+                      className={
+                        available
+                          ? "size-4 shrink-0 text-primary"
+                          : "size-4 shrink-0 text-muted-foreground"
+                      }
+                    />
                     <span className="text-sm">{title}</span>
-                    <Badge variant="outline" className="ml-auto text-muted-foreground">
-                      Planned
+                    <Badge
+                      variant={available ? "secondary" : "outline"}
+                      className="ml-auto shrink-0 text-muted-foreground"
+                    >
+                      {available ? "Available" : "In development"}
                     </Badge>
                   </li>
                 ))}
@@ -226,10 +273,11 @@ export default function LandingPage() {
           <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
             <div className="border-gradient bg-glow relative overflow-hidden rounded-3xl px-6 py-16 text-center sm:px-16">
               <h2 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-                Your first agent is a few minutes away.
+                Don&apos;t know what to start? Start here.
               </h2>
               <p className="mx-auto mt-4 max-w-md text-sm text-muted-foreground sm:text-base">
-                Create an account, give your AI a purpose, and start a conversation.
+                Create an account and tell NanoCrab where you&apos;re starting from. It
+                takes about three minutes.
               </p>
               <Button asChild size="lg" className="mt-8 h-11 px-6 font-semibold">
                 <Link href="/signup">
@@ -242,10 +290,17 @@ export default function LandingPage() {
         </section>
       </main>
       <footer className="border-t border-border/60">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 text-sm text-muted-foreground sm:flex-row sm:px-6">
-          <Logo />
-          <p>
-            © {siteConfig.name}. {siteConfig.tagline}
+        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 text-sm text-muted-foreground sm:px-6">
+          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+            <Logo />
+            <p>
+              © {siteConfig.name}. {siteConfig.tagline}
+            </p>
+          </div>
+          <p className="text-center text-xs leading-relaxed text-muted-foreground/70 sm:text-left">
+            NanoCrab AI provides planning and decision support, not financial, legal or
+            tax advice. You remain responsible for your business decisions. No income or
+            results are guaranteed.
           </p>
         </div>
       </footer>

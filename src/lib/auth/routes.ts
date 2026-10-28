@@ -3,10 +3,17 @@
 /** Pages that require a signed-in user. */
 export const PROTECTED_PREFIXES = [
   "/dashboard",
-  "/agents",
-  "/conversations",
+  "/onboarding",
+  "/business",
+  "/ceo",
+  "/plan",
+  "/tasks",
+  "/revenue",
   "/memory",
   "/settings",
+  // Reserved for the agent architecture (AI CEO persona, future specialists).
+  "/agents",
+  "/conversations",
 ] as const
 
 /** Sign-in/sign-up pages; signed-in users are sent to the app instead. */

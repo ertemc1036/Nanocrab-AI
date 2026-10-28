@@ -1,11 +1,14 @@
 # NanoCrab AI
 
-**Your AI. Your Rules.** — a platform for creating, customizing and using your
-own AI agents without writing code.
+**Your AI. Your Rules.** — your personal AI CEO, from zero business experience
+to your first customer and first revenue. NanoCrab leads until you earn your
+first revenue; then you become the CEO and NanoCrab becomes your AI Co-Founder.
 
-> Status: **Phase 2 of 5** — authentication, profiles/account settings and the
-> secured database schema are implemented. Agents, chat and memory UIs are not
-> functional yet. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+> Status: **AI CEO Stage 1 of 4** — authentication, secured database, founder
+> onboarding and the business workspace (Command Center, My Business) are
+> implemented. AI CEO chat, planning, tasks and revenue tracking are in
+> development and shown as "Soon" in the app. See
+> [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Getting started
 
