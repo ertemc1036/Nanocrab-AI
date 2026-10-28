@@ -4,10 +4,13 @@ import { BotIcon } from "lucide-react"
 import { CreateAgentButton } from "@/components/layout/create-agent-button"
 import { PageHeader } from "@/components/layout/page-header"
 import { EmptyState } from "@/components/shared/empty-state"
+import { requireUser } from "@/lib/dal/auth"
 
 export const metadata: Metadata = { title: "My Agents" }
 
-export default function AgentsPage() {
+export default async function AgentsPage() {
+  await requireUser()
+
   return (
     <div className="space-y-8">
       <PageHeader

@@ -37,7 +37,8 @@ Server Components and Server Actions for CRUD, Route Handlers for streaming chat
 src/
   app/
     page.tsx                 Marketing landing page (static)
-    (auth)/                  login, signup, reset-password      [Phase 2]
+    (auth)/                  login, signup, forgot/reset password
+    auth/confirm/route.ts    Email link handler (token_hash + PKCE code)
     (app)/                   Authenticated app shell
       layout.tsx             Sidebar + mobile header
       dashboard/ agents/ conversations/ memory/ settings/
@@ -47,16 +48,19 @@ src/
     brand/ layout/ shared/ marketing/
     agents/ chat/ memory/    Feature components                 [Phase 3–5]
   config/                    Site + navigation config
+  proxy.ts                   Session refresh + optimistic route protection
   lib/
     utils.ts
-    env.ts                   Zod-validated environment          [Phase 2]
-    supabase/                server / browser / proxy clients   [Phase 2]
+    env.ts                   Zod-validated public Supabase config
+    auth/                    Auth Server Actions, redirect sanitizing, route rules
+    supabase/                Server + proxy clients, database.types.ts
     dal/                     Data Access Layer: the ONLY place that queries
                              user data; every function resolves the user itself
     validation/              Zod schemas shared by actions & routes
     ai/                      AI engine (see §4)                 [Phase 4]
 supabase/
-  migrations/                SQL migrations (schema + RLS)      [Phase 2]
+  migrations/                SQL migrations (schema + RLS)
+  tests/db/                  RLS tests run on real Postgres (npm run test:db)
 ```
 
 ## 3. Data model (Phase 2)
@@ -106,6 +110,12 @@ required" state; nothing is faked.
 
 ## 5. Security & cost control
 
+See [SECURITY.md](./SECURITY.md) for the full model, tests and the live
+verification checklist.
+
+See [SECURITY.md](./SECURITY.md) for the full model and the live
+verification checklist.
+
 - RLS on every user-data table, plus ownership checks in the DAL.
 - Zod validation on every Server Action and Route Handler input.
 - Request limits: per-user daily message count and token budget enforced
@@ -118,13 +128,13 @@ required" state; nothing is faked.
 
 ## 6. Phased plan
 
-| Phase | Scope                                                                                                          | Status  |
-| ----- | -------------------------------------------------------------------------------------------------------------- | ------- |
-| 1     | Project setup, design system, app shell, landing page                                                          | ✅ Done |
-| 2     | Supabase clients, `proxy.ts`, auth pages (sign up, log in, log out, reset password), profile, migrations + RLS | Next    |
-| 3     | Agent creator (templates + custom), agent list with search, edit, duplicate, delete                            |         |
-| 4     | AI engine, streaming chat route, conversation persistence, rename/delete conversations                         |         |
-| 5     | Agent memory CRUD + context loading, usage limits and dashboard usage, tests                                   |         |
+| Phase | Scope                                                                                                          | Status                        |
+| ----- | -------------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| 1     | Project setup, design system, app shell, landing page                                                          | ✅ Done                       |
+| 2     | Supabase clients, `proxy.ts`, auth pages (sign up, log in, log out, reset password), profile, migrations + RLS | ✅ Done (live checks pending) |
+| 3     | Agent creator (templates + custom), agent list with search, edit, duplicate, delete                            | Next                          |
+| 4     | AI engine, streaming chat route, conversation persistence, rename/delete conversations                         |                               |
+| 5     | Agent memory CRUD + context loading, usage limits and dashboard usage, tests                                   |                               |
 
 Each phase lands as its own reviewable commit(s) and is validated (typecheck,
 lint, tests, build, visual check) before the next begins.
