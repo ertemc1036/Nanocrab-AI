@@ -45,6 +45,13 @@ describe("appNav", () => {
 
   it("only marks implemented sections as available", () => {
     const available = appNav.filter((i) => i.status === "available").map((i) => i.href)
-    expect(available).toEqual(["/dashboard", "/business", "/ceo", "/settings"])
+    expect(available).toEqual([
+      "/dashboard",
+      "/business",
+      "/ceo",
+      "/plan",
+      "/tasks",
+      "/settings",
+    ])
   })
 })

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { computeJourney, getNextAction } from "./journey"
+import { computeJourney, getDailyAction, getNextAction } from "./journey"
 import type { Business, FounderProfile } from "./types"
 
 const profile: FounderProfile = {
@@ -108,5 +108,59 @@ describe("getNextAction", () => {
 
   it("is always rule-based in Stage 1", () => {
     expect(getNextAction({ profile, business }).source).toBe("rules")
+  })
+})
+
+describe("getDailyAction", () => {
+  const t = (
+    id: string,
+    priority: "low" | "medium" | "high",
+    dueDate: string | null,
+    status = "todo"
+  ) => ({
+    id,
+    title: id,
+    priority,
+    dueDate,
+    status,
+  })
+  const today = "2026-10-29"
+
+  it("returns null without open tasks", () => {
+    expect(getDailyAction([t("a", "high", null, "done")], today)).toBeNull()
+  })
+
+  it("puts overdue work first", () => {
+    expect(
+      getDailyAction(
+        [t("soon", "high", "2026-10-30"), t("late", "low", "2026-10-20")],
+        today
+      )?.taskId
+    ).toBe("late")
+  })
+
+  it("then tasks due today, then in-progress work", () => {
+    expect(
+      getDailyAction([t("later", "high", null), t("today", "low", today)], today)?.taskId
+    ).toBe("today")
+    expect(
+      getDailyAction(
+        [t("high", "high", null), t("wip", "low", null, "in_progress")],
+        today
+      )?.taskId
+    ).toBe("wip")
+  })
+
+  it("otherwise picks the highest priority, earliest due", () => {
+    expect(
+      getDailyAction(
+        [
+          t("m", "medium", "2026-11-01"),
+          t("h2", "high", "2026-11-05"),
+          t("h1", "high", "2026-11-02"),
+        ],
+        today
+      )?.taskId
+    ).toBe("h1")
   })
 })

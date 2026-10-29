@@ -180,3 +180,61 @@ function formatList(items: string[]): string {
   if (items.length <= 1) return items.join("")
   return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`
 }
+
+const PRIORITY_RANK = { high: 0, medium: 1, low: 2 } as const
+
+export type DailyAction = {
+  taskId: string
+  title: string
+  reason: string
+}
+
+/**
+ * Today's recommended action from the founder's real open tasks:
+ * overdue first, then due today, then work in progress, then the most
+ * important upcoming task. Null when there are no open tasks.
+ */
+export function getDailyAction(
+  tasks: {
+    id: string
+    title: string
+    status: string
+    priority: "low" | "medium" | "high"
+    dueDate: string | null
+  }[],
+  today: string
+): DailyAction | null {
+  const open = tasks.filter((t) => t.status !== "done")
+  if (open.length === 0) return null
+  const byImportance = (a: (typeof open)[number], b: (typeof open)[number]) =>
+    PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority] ||
+    (a.dueDate ?? "9999-12-31").localeCompare(b.dueDate ?? "9999-12-31")
+
+  const overdue = open
+    .filter((t) => t.dueDate !== null && t.dueDate < today)
+    .sort(byImportance)
+  if (overdue[0]) {
+    return {
+      taskId: overdue[0].id,
+      title: overdue[0].title,
+      reason: `Overdue since ${overdue[0].dueDate}. Finish it or reschedule it.`,
+    }
+  }
+  const dueToday = open.filter((t) => t.dueDate === today).sort(byImportance)
+  if (dueToday[0])
+    return { taskId: dueToday[0].id, title: dueToday[0].title, reason: "Due today." }
+  const inProgress = open.filter((t) => t.status === "in_progress").sort(byImportance)
+  if (inProgress[0]) {
+    return {
+      taskId: inProgress[0].id,
+      title: inProgress[0].title,
+      reason: "Already in progress — finishing it beats starting something new.",
+    }
+  }
+  const next = [...open].sort(byImportance)[0]!
+  return {
+    taskId: next.id,
+    title: next.title,
+    reason: `Your most important open task (${next.priority} priority${next.dueDate ? `, due ${next.dueDate}` : ""}).`,
+  }
+}
