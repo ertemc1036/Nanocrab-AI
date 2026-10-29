@@ -39,7 +39,7 @@ export const appNav: readonly NavItem[] = [
   { title: "Business Plan", href: "/plan", icon: ClipboardListIcon, status: "available" },
   { title: "Tasks", href: "/tasks", icon: ListChecksIcon, status: "available" },
   { title: "Revenue", href: "/revenue", icon: CircleDollarSignIcon, status: "soon" },
-  { title: "Memory", href: "/memory", icon: BrainIcon, status: "soon" },
+  { title: "Memory", href: "/memory", icon: BrainIcon, status: "available" },
   { title: "Settings", href: "/settings", icon: SettingsIcon, status: "available" },
 ]
 

@@ -51,6 +51,7 @@ describe("appNav", () => {
       "/ceo",
       "/plan",
       "/tasks",
+      "/memory",
       "/settings",
     ])
   })
