@@ -38,6 +38,23 @@ agents(id, user_id)` — mean a row can never reference another user's agent
   (no address, birth date or ID numbers); budget is optional and stored only
   as the founder entered it.
 
+## AI guarantees
+
+- `OPENAI_API_KEY` is read only in server-only modules; config exposes
+  `hasApiKey`, never the key. Provider errors are logged by status/type only.
+- The chat endpoint requires a session (401 otherwise), a same-origin
+  `Origin`, JSON content type, and a maximum input length.
+- All AI context is loaded through the DAL as the signed-in founder (RLS
+  applies), so the AI never receives another user's data.
+- AI limits (rate, monthly spend, global daily budget) are enforced in the
+  database by `begin_ai_request()` with worst-case cost reservations that
+  can't be lowered. See [AI.md](./AI.md).
+- AI output never changes data directly: tool calls become pending proposals,
+  validated with Zod twice, applied only after founder approval through
+  ownership-checked commands. No tools for external actions exist.
+- Founder-written text in prompts is quoted as data; platform rules come first.
+- AI Markdown renders without raw HTML; links use `noopener noreferrer nofollow`.
+
 ## Application guarantees
 
 - All form input is validated server-side with Zod (`src/lib/validation`).
@@ -118,6 +135,20 @@ REST client with each user's access token and the publishable key)
       rejected.
 - [ ] As B, `PATCH /rest/v1/founder_profiles` with A's business id as
       `current_business_id` is rejected.
+
+**AI CEO and workspace (needs `OPENAI_API_KEY` — paid, requires approval)**
+
+- [ ] Without a key: AI CEO shows "AI isn't configured"; plan/tasks/memory/revenue still work.
+- [ ] With a key: a reply streams; Stop ends it; reload keeps history.
+- [ ] Replies follow the language you write in (English, German, Turkish).
+- [ ] Suggestions appear as approval cards; nothing changes until approved.
+- [ ] Generate a plan → it's a draft until you activate it.
+- [ ] Hit the per-minute limit (6 quick messages) → friendly limit message, no OpenAI call.
+- [ ] `usage_events` shows each request with tokens and cost.
+- [ ] As user B, `GET /rest/v1/business_tasks`, `/founder_memories`, `/conversations`,
+      `/revenue_records` return none of A's rows.
+- [ ] Record a sale → self-reported; verify with evidence → First Revenue moment →
+      confirm → Co-Founder mode; switch back from My Business.
 
 Agent/conversation/memory isolation becomes testable through the UI in
 Phases 3–5; it's already covered at the database level by `npm run test:db`.

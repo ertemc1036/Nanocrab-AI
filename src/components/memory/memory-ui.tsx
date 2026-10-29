@@ -24,24 +24,16 @@ import {
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { MEMORY_CATEGORY_LABELS } from "@/lib/nanocrab-ceo/memory-labels"
 import type { FounderMemory, MemoryCategory } from "@/lib/nanocrab-ceo/types"
 import { initialFormState } from "@/lib/validation/form"
-
-export const CATEGORY_LABELS: Record<MemoryCategory, string> = {
-  fact: "Business facts",
-  goal: "Goals",
-  decision: "Decisions",
-  preference: "Preferences",
-  challenge: "Current challenges",
-  progress: "Progress notes",
-}
 
 function CategorySelect({ id, defaultValue }: { id: string; defaultValue?: string }) {
   return (
     <NativeSelect id={id} name="category" defaultValue={defaultValue ?? "fact"}>
-      {(Object.keys(CATEGORY_LABELS) as MemoryCategory[]).map((c) => (
+      {(Object.keys(MEMORY_CATEGORY_LABELS) as MemoryCategory[]).map((c) => (
         <option key={c} value={c}>
-          {CATEGORY_LABELS[c]}
+          {MEMORY_CATEGORY_LABELS[c]}
         </option>
       ))}
     </NativeSelect>

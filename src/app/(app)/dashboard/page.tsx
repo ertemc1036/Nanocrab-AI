@@ -13,7 +13,6 @@ import {
 import { JourneyCard } from "@/components/command-center/journey-card"
 import { ModeCard } from "@/components/command-center/mode-card"
 import { ProposalCard } from "@/components/chat/proposal-card"
-import { formatMoney } from "@/components/revenue/revenue-list"
 import { FormAlert } from "@/components/forms/form-alert"
 import { PageHeader } from "@/components/layout/page-header"
 import { Button } from "@/components/ui/button"
@@ -27,6 +26,7 @@ import { listTasks } from "@/lib/dal/tasks"
 import { getWorkspaceScope } from "@/lib/dal/workspace"
 import { computeJourney, getDailyAction, getNextAction } from "@/lib/nanocrab-ceo/journey"
 import { DEFAULT_MODE } from "@/lib/nanocrab-ceo/modes"
+import { formatMoney } from "@/lib/format"
 import { displayNameOrEmail } from "@/lib/user-display"
 
 export const metadata: Metadata = { title: "Command Center" }

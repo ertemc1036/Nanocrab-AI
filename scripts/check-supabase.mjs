@@ -30,8 +30,55 @@ const TABLES = [
   "usage_events",
   "founder_profiles",
   "businesses",
+  "business_plans",
+  "business_tasks",
+  "business_milestones",
+  "founder_memories",
+  "ai_proposals",
+  "revenue_records",
+  "ai_role_transitions",
 ]
-const FUNCTIONS = ["delete_my_account", "record_usage_event"]
+// Parameter names must match, or PostgREST reports the function as missing.
+// Values are null: anonymous callers are denied before anything runs.
+const FUNCTIONS = {
+  delete_my_account: {},
+  begin_ai_request: Object.fromEntries(
+    [
+      "p_kind",
+      "p_provider",
+      "p_model",
+      "p_reserved_cost_micros",
+      "p_business_id",
+      "p_conversation_id",
+      "p_limit_per_minute",
+      "p_limit_per_day",
+      "p_monthly_limit_micros",
+      "p_global_daily_limit_micros",
+    ].map((k) => [k, null])
+  ),
+  finish_ai_request: Object.fromEntries(
+    [
+      "p_request_id",
+      "p_status",
+      "p_input_tokens",
+      "p_output_tokens",
+      "p_cost_micros",
+    ].map((k) => [k, null])
+  ),
+  create_plan_version: Object.fromEntries(
+    ["p_business_id", "p_sections", "p_status", "p_source", "p_note"].map((k) => [
+      k,
+      null,
+    ])
+  ),
+  activate_plan_version: { p_plan_id: null },
+  switch_operating_mode: Object.fromEntries(
+    ["p_business_id", "p_to_mode", "p_reason", "p_revenue_record_id"].map((k) => [
+      k,
+      null,
+    ])
+  ),
+}
 
 const ok = (msg) => console.log(`  ✓ ${msg}`)
 const bad = (msg) => console.log(`  ✗ ${msg}`)
@@ -111,11 +158,11 @@ for (const table of TABLES) {
 }
 
 console.log("\nFunctions")
-for (const fn of FUNCTIONS) {
+for (const [fn, args] of Object.entries(FUNCTIONS)) {
   const r = await call(`/rest/v1/rpc/${fn}`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: "{}",
+    body: JSON.stringify(args),
   })
   const code = r.body?.code
   if (code === "PGRST202" || code === "42883") {

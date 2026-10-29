@@ -1,13 +1,13 @@
 import type { Metadata } from "next"
 import { Suspense } from "react"
 
-import {
-  EMPTY_ANSWERS,
-  OnboardingFlow,
-  type OnboardingAnswers,
-} from "@/components/onboarding/onboarding-flow"
+import { OnboardingFlow } from "@/components/onboarding/onboarding-flow"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getMyFounderProfile } from "@/lib/dal/founder"
+import {
+  EMPTY_ANSWERS,
+  type OnboardingAnswers,
+} from "@/lib/nanocrab-ceo/founder-profile/answers"
 
 export const metadata: Metadata = { title: "Founder onboarding" }
 

@@ -42,17 +42,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { formatMoney } from "@/lib/format"
 import type { RevenueRecord } from "@/lib/nanocrab-ceo/types"
 import { cn } from "@/lib/utils"
 import { initialFormState } from "@/lib/validation/form"
-
-export function formatMoney(amount: number, currency: string) {
-  try {
-    return new Intl.NumberFormat("en", { style: "currency", currency }).format(amount)
-  } catch {
-    return `${amount.toFixed(2)} ${currency}`
-  }
-}
 
 const STATUS = {
   self_reported: { label: "Self-reported", className: "text-warning border-warning/40" },

@@ -8,6 +8,7 @@ import { FormField } from "@/components/forms/form-field"
 import { NativeSelect } from "@/components/forms/native-select"
 import { SubmitButton } from "@/components/forms/submit-button"
 import { Label } from "@/components/ui/label"
+import { currencyOptions } from "@/lib/currencies"
 import { initialFormState } from "@/lib/validation/form"
 
 export function RevenueForm({
@@ -19,13 +20,7 @@ export function RevenueForm({
 }) {
   const [state, formAction] = useActionState(createRevenueAction, initialFormState)
   const ref = useRef<HTMLFormElement>(null)
-  const currencies = useMemo(() => {
-    try {
-      return Intl.supportedValuesOf("currency")
-    } catch {
-      return ["EUR", "USD", "GBP", "TRY"]
-    }
-  }, [])
+  const currencies = useMemo(() => currencyOptions(defaultCurrency), [defaultCurrency])
   useEffect(() => {
     if (state.status === "success") ref.current?.reset()
   }, [state])

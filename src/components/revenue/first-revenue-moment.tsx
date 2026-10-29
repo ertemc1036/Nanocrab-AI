@@ -2,6 +2,7 @@
 
 import { CrownIcon, PartyPopperIcon } from "lucide-react"
 import { useState, useTransition } from "react"
+import { toast } from "sonner"
 
 import { switchModeAction } from "@/app/(app)/revenue/actions"
 import {
@@ -99,14 +100,15 @@ export function FirstRevenueMoment({
               disabled={pending}
               onClick={() =>
                 startTransition(async () => {
-                  setResult(
-                    await switchModeAction({
-                      toMode: "cofounder",
-                      reason: "first_revenue",
-                      revenueRecordId,
-                      confirmed: true,
-                    })
-                  )
+                  const r = await switchModeAction({
+                    toMode: "cofounder",
+                    reason: "first_revenue",
+                    revenueRecordId,
+                    confirmed: true,
+                  })
+                  // This card disappears once the mode changes, so also confirm with a toast.
+                  if (r.ok) toast.success(r.message)
+                  setResult(r)
                 })
               }
             >

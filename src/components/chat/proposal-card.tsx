@@ -119,7 +119,9 @@ export function ProposalCard({ proposal }: { proposal: Proposal }) {
         </p>
       ) : null}
       {d.meta ? (
-        <p className="mt-1.5 text-xs text-muted-foreground capitalize">{d.meta}</p>
+        <p className="mt-1.5 text-xs text-muted-foreground first-letter:uppercase">
+          {d.meta}
+        </p>
       ) : null}
       {d.rationale ? (
         <p className="mt-2 border-l-2 pl-2 text-xs text-muted-foreground italic">

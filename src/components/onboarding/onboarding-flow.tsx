@@ -35,37 +35,11 @@ import {
   LIMITS,
   SKILL_SUGGESTIONS,
   WEEKLY_HOUR_PRESETS,
-  type BusinessPreference,
-  type Goal,
 } from "@/lib/nanocrab-ceo/founder-profile/options"
+import { currencyOptions } from "@/lib/currencies"
+import type { OnboardingAnswers } from "@/lib/nanocrab-ceo/founder-profile/answers"
 import { cn } from "@/lib/utils"
 import { initialFormState } from "@/lib/validation/form"
-
-export type OnboardingAnswers = {
-  goal: Goal | null
-  goalDetails: string
-  skills: string[]
-  interests: string[]
-  weeklyHours: number | null
-  budget: { amount: number; currency: string } | null
-  businessPreference: BusinessPreference | null
-  hasIdea: boolean | null
-  ideaDescription: string
-  countryCode: string | null
-}
-
-export const EMPTY_ANSWERS: OnboardingAnswers = {
-  goal: null,
-  goalDetails: "",
-  skills: [],
-  interests: [],
-  weeklyHours: null,
-  budget: null,
-  businessPreference: null,
-  hasIdea: null,
-  ideaDescription: "",
-  countryCode: null,
-}
 
 type StepId =
   "goal" | "skills" | "interests" | "hours" | "budget" | "preference" | "idea" | "country"
@@ -638,13 +612,10 @@ function BudgetStep({
   update: <K extends keyof OnboardingAnswers>(key: K, value: OnboardingAnswers[K]) => void
 }) {
   const [currency, setCurrency] = useState(a.budget?.currency ?? "USD")
-  const currencies = useMemo(() => {
-    try {
-      return Intl.supportedValuesOf("currency")
-    } catch {
-      return ["USD", "EUR", "GBP"]
-    }
-  }, [])
+  const currencies = useMemo(
+    () => currencyOptions(a.budget?.currency),
+    [a.budget?.currency]
+  )
   const format = (amount: number) => {
     try {
       return new Intl.NumberFormat("en", {

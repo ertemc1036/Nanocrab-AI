@@ -2,6 +2,7 @@
 
 import { ArrowLeftRightIcon } from "lucide-react"
 import { useState, useTransition } from "react"
+import { toast } from "sonner"
 
 import { switchModeAction } from "@/app/(app)/revenue/actions"
 import {
@@ -54,14 +55,15 @@ export function ModeSwitch({ mode }: { mode: OperatingMode }) {
               disabled={pending}
               onClick={() =>
                 startTransition(async () => {
-                  setResult(
-                    await switchModeAction({
-                      toMode: target,
-                      reason: "manual",
-                      revenueRecordId: null,
-                      confirmed: true,
-                    })
-                  )
+                  const r = await switchModeAction({
+                    toMode: target,
+                    reason: "manual",
+                    revenueRecordId: null,
+                    confirmed: true,
+                  })
+                  // The page re-renders in the new mode, so confirm with a toast.
+                  if (r.ok) toast.success(r.message)
+                  else setResult(r)
                 })
               }
             >

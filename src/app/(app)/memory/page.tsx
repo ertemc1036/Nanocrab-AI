@@ -3,7 +3,8 @@ import { BrainIcon, ShieldCheckIcon } from "lucide-react"
 
 import { ProposalCard } from "@/components/chat/proposal-card"
 import { PageHeader } from "@/components/layout/page-header"
-import { CATEGORY_LABELS, MemoryItem, NewMemoryForm } from "@/components/memory/memory-ui"
+import { MemoryItem, NewMemoryForm } from "@/components/memory/memory-ui"
+import { MEMORY_CATEGORY_LABELS } from "@/lib/nanocrab-ceo/memory-labels"
 import { EmptyState } from "@/components/shared/empty-state"
 import {
   Card,
@@ -25,7 +26,7 @@ export default async function MemoryPage() {
     listMemories(),
     listProposals({ status: "pending", kinds: ["memory"] }),
   ])
-  const grouped = (Object.keys(CATEGORY_LABELS) as MemoryCategory[])
+  const grouped = (Object.keys(MEMORY_CATEGORY_LABELS) as MemoryCategory[])
     .map((c) => ({ category: c, items: memories.filter((m) => m.category === c) }))
     .filter((g) => g.items.length > 0)
 
@@ -74,7 +75,7 @@ export default async function MemoryPage() {
                   id={`mem-${g.category}`}
                   className="mb-2 text-sm font-medium text-muted-foreground"
                 >
-                  {CATEGORY_LABELS[g.category]}
+                  {MEMORY_CATEGORY_LABELS[g.category]}
                 </h2>
                 <ul className="space-y-2">
                   {g.items.map((m) => (

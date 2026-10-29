@@ -4,7 +4,8 @@ import { CircleDollarSignIcon, HandshakeIcon, InfoIcon } from "lucide-react"
 import { PageHeader } from "@/components/layout/page-header"
 import { FirstRevenueMoment } from "@/components/revenue/first-revenue-moment"
 import { RevenueForm } from "@/components/revenue/revenue-form"
-import { formatMoney, RevenueList } from "@/components/revenue/revenue-list"
+import { RevenueList } from "@/components/revenue/revenue-list"
+import { formatMoney } from "@/lib/format"
 import { EmptyState } from "@/components/shared/empty-state"
 import {
   Card,
@@ -50,6 +51,20 @@ export default async function RevenuePage() {
           revenueRecordId={firstVerified.id}
           amountLabel={formatMoney(firstVerified.amount, firstVerified.currency)}
         />
+      ) : null}
+
+      {scope.business.operatingMode === "cofounder" ? (
+        <p className="flex items-start gap-2 rounded-xl border bg-card px-4 py-3 text-sm">
+          <HandshakeIcon className="mt-0.5 size-4 shrink-0 text-primary" />
+          <span>
+            <span className="font-medium">You&apos;re the CEO.</span> NanoCrab is your AI
+            Co-Founder
+            {transitions[0]?.reason === "first_revenue"
+              ? " since your first verified revenue"
+              : ""}
+            .
+          </span>
+        </p>
       ) : null}
 
       {!firstVerified && hasUnverified ? (

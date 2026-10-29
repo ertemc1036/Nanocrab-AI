@@ -1,7 +1,7 @@
 "use client"
 
 import { BotIcon, MoreHorizontalIcon, PencilIcon, Trash2Icon } from "lucide-react"
-import { useState, useTransition } from "react"
+import { useOptimistic, useState, useTransition } from "react"
 
 import { deleteTaskAction, setTaskStatusAction } from "@/app/(app)/tasks/actions"
 import { TaskForm } from "@/components/tasks/task-form"
@@ -89,12 +89,15 @@ function TaskRow({ task, today }: { task: BusinessTask; today: string }) {
   const [editing, setEditing] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const done = task.status === "done"
+  // Optimistic status so the checkbox responds instantly; reverts if the save fails.
+  const [status, setOptimisticStatus] = useOptimistic(task.status)
+  const done = status === "done"
   const overdue = !done && task.dueDate !== null && task.dueDate < today
 
-  const setStatus = (status: TaskStatus) =>
+  const setStatus = (next: TaskStatus) =>
     startTransition(async () => {
-      const r = await setTaskStatusAction(task.id, status)
+      setOptimisticStatus(next)
+      const r = await setTaskStatusAction(task.id, next)
       setError(r.ok ? null : (r.message ?? "Couldn't update."))
     })
 
@@ -175,7 +178,7 @@ function TaskRow({ task, today }: { task: BusinessTask; today: string }) {
             Edit
           </DropdownMenuItem>
           {(["todo", "in_progress", "done"] as TaskStatus[])
-            .filter((s) => s !== task.status)
+            .filter((s) => s !== status)
             .map((s) => (
               <DropdownMenuItem key={s} onSelect={() => setStatus(s)}>
                 Move to {STATUS_LABEL[s]}
