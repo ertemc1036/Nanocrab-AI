@@ -43,7 +43,7 @@ describe("appNav", () => {
     ])
   })
 
-  it("only marks implemented sections as available", () => {
+  it("makes every section available", () => {
     const available = appNav.filter((i) => i.status === "available").map((i) => i.href)
     expect(available).toEqual([
       "/dashboard",
@@ -51,6 +51,7 @@ describe("appNav", () => {
       "/ceo",
       "/plan",
       "/tasks",
+      "/revenue",
       "/memory",
       "/settings",
     ])

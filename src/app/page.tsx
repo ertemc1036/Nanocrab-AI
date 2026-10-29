@@ -1,6 +1,7 @@
 import Link from "next/link"
 import {
   ArrowRightIcon,
+  BrainIcon,
   BriefcaseBusinessIcon,
   CircleDollarSignIcon,
   ClipboardListIcon,
@@ -50,12 +51,17 @@ const availability: { icon: LucideIcon; title: string; available: boolean }[] = 
   { icon: UserRoundIcon, title: "Founder onboarding & profile", available: true },
   { icon: BriefcaseBusinessIcon, title: "Business workspace & journey", available: true },
   { icon: LockKeyholeIcon, title: "Private, isolated data", available: true },
-  { icon: SparklesIcon, title: "AI CEO conversations", available: false },
-  { icon: SearchCheckIcon, title: "Opportunity evaluation", available: false },
-  { icon: ClipboardListIcon, title: "Business plans & tasks", available: false },
+  { icon: SparklesIcon, title: "AI CEO conversations", available: true },
+  { icon: ClipboardListIcon, title: "Business plans & tasks", available: true },
+  { icon: BrainIcon, title: "Founder memory", available: true },
   {
     icon: CircleDollarSignIcon,
     title: "Revenue milestone & Co-Founder mode",
+    available: true,
+  },
+  {
+    icon: SearchCheckIcon,
+    title: "Side-by-side opportunity comparison",
     available: false,
   },
 ]

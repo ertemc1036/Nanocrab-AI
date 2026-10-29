@@ -38,24 +38,34 @@ describe("computeJourney", () => {
     expect(journey.slice(1).every((m) => m.status === "upcoming")).toBe(true)
   })
 
-  it("marks tracked milestones done from real state", () => {
-    const journey = computeJourney({ profile, business })
+  it("marks milestones done from real state", () => {
+    const journey = computeJourney({
+      profile,
+      business,
+      hasActivePlan: true,
+      hasSale: true,
+    })
     expect(journey.map((m) => [m.id, m.status])).toEqual([
       ["founder_profile", "done"],
       ["business_workspace", "done"],
-      ["opportunity_validated", "current"],
-      ["business_plan", "upcoming"],
-      ["first_customer", "upcoming"],
-      ["first_revenue", "upcoming"],
+      ["business_plan", "done"],
+      ["first_customer", "done"],
+      ["first_revenue", "current"],
       ["cofounder_mode", "upcoming"],
     ])
   })
 
-  it("never marks untracked milestones as done", () => {
-    const journey = computeJourney({ profile, business })
-    for (const m of journey.filter((m) => !m.tracked && m.id !== "cofounder_mode")) {
-      expect(m.status).not.toBe("done")
-    }
+  it("requires verified revenue for the first-revenue milestone", () => {
+    const sale = computeJourney({ profile, business, hasSale: true })
+    expect(sale.find((m) => m.id === "first_revenue")!.status).not.toBe("done")
+    const verified = computeJourney({ profile, business, hasVerifiedRevenue: true })
+    expect(verified.find((m) => m.id === "first_revenue")!.status).toBe("done")
+  })
+
+  it("tracks every milestone", () => {
+    expect(
+      computeJourney({ profile: null, business: null }).every((m) => m.tracked)
+    ).toBe(true)
   })
 
   it("treats an onboarding-incomplete profile as not done", () => {
@@ -101,9 +111,35 @@ describe("getNextAction", () => {
     })
   })
 
-  it("does not link to features that don't exist yet", () => {
-    const action = getNextAction({ profile, business })
-    expect(action).toMatchObject({ id: "await_planning", href: null, cta: null })
+  it("walks the founder from plan to first customer to verified revenue", () => {
+    expect(getNextAction({ profile, business })).toMatchObject({
+      id: "create_plan",
+      href: "/plan",
+    })
+    expect(getNextAction({ profile, business, hasActivePlan: true })).toMatchObject({
+      id: "first_customer",
+      href: "/ceo",
+    })
+    expect(
+      getNextAction({ profile, business, hasActivePlan: true, hasSale: true })
+    ).toMatchObject({ id: "verify_revenue" })
+    expect(
+      getNextAction({
+        profile,
+        business,
+        hasActivePlan: true,
+        hasSale: true,
+        hasVerifiedRevenue: true,
+      })
+    ).toMatchObject({ id: "take_the_lead" })
+    expect(
+      getNextAction({
+        profile,
+        business: { ...business, operatingMode: "cofounder" },
+        hasActivePlan: true,
+        hasVerifiedRevenue: true,
+      })
+    ).toMatchObject({ id: "grow" })
   })
 
   it("is always rule-based in Stage 1", () => {

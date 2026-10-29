@@ -39,8 +39,8 @@ export function ModeCard({ mode }: { mode: OperatingMode }) {
         </p>
         {mode === "ceo" ? (
           <p className="mt-3 text-xs leading-relaxed text-muted-foreground/80">
-            After your first revenue you can take the lead and make NanoCrab your AI
-            Co-Founder. Mode switching arrives with revenue tracking.
+            After your first verified revenue you can take the lead and make NanoCrab your
+            AI Co-Founder. You can also switch manually from My Business.
           </p>
         ) : null}
       </div>

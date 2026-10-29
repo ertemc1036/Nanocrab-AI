@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 
 import { BusinessForm } from "@/components/business/business-form"
 import { FounderSnapshot } from "@/components/business/founder-snapshot"
+import { ModeSwitch } from "@/components/business/mode-switch"
 import { ModeCard } from "@/components/command-center/mode-card"
 import { PageHeader } from "@/components/layout/page-header"
 import {
@@ -85,7 +86,10 @@ export default async function MyBusinessPage() {
           </CardContent>
         </Card>
         <div className="space-y-6">
-          <ModeCard mode={business.operatingMode} />
+          <div className="space-y-3">
+            <ModeCard mode={business.operatingMode} />
+            <ModeSwitch key={business.operatingMode} mode={business.operatingMode} />
+          </div>
           <FounderSnapshot context={context} />
         </div>
       </div>

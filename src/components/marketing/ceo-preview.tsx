@@ -2,7 +2,7 @@ import { CheckIcon, CompassIcon, CrownIcon, SparklesIcon } from "lucide-react"
 
 /**
  * Static product illustration for the landing page. It depicts the AI CEO
- * experience in development; it is not a live AI response, is captioned as a
+ * experience; it is not a live AI response, is captioned as a
  * preview, and is hidden from assistive tech.
  */
 export function CeoPreview() {
@@ -66,7 +66,7 @@ export function CeoPreview() {
               {[
                 ["Founder profile", true],
                 ["Business workspace", true],
-                ["Opportunity validated", false],
+                ["Business plan", false],
                 ["First revenue", false],
               ].map(([label, done]) => (
                 <p key={String(label)} className="flex items-center gap-2">
@@ -87,7 +87,7 @@ export function CeoPreview() {
         </div>
       </div>
       <figcaption className="mt-4 text-center text-xs text-muted-foreground">
-        Illustrative preview. AI CEO conversations are in development.
+        Illustrative preview, not a real conversation.
       </figcaption>
     </figure>
   )

@@ -10,12 +10,17 @@ import type { Business, FounderProfile } from "./types"
 export type JourneyState = {
   profile: FounderProfile | null
   business: Business | null
+  /** The business has an active (approved) plan. */
+  hasActivePlan?: boolean
+  /** At least one sale is recorded (self-reported or verified, not refunded). */
+  hasSale?: boolean
+  /** At least one sale is verified with evidence. */
+  hasVerifiedRevenue?: boolean
 }
 
 export type MilestoneId =
   | "founder_profile"
   | "business_workspace"
-  | "opportunity_validated"
   | "business_plan"
   | "first_customer"
   | "first_revenue"
@@ -44,34 +49,28 @@ const MILESTONES: Omit<Milestone, "status">[] = [
     tracked: true,
   },
   {
-    id: "opportunity_validated",
-    title: "Opportunity validated",
-    description: "Evidence that real customers want what you'll offer.",
-    tracked: false,
-  },
-  {
     id: "business_plan",
     title: "Business plan",
-    description: "A realistic launch plan broken into tasks.",
-    tracked: false,
+    description: "A realistic plan you've reviewed and approved.",
+    tracked: true,
   },
   {
     id: "first_customer",
     title: "First customer",
-    description: "Someone outside your circle commits to buy.",
-    tracked: false,
+    description: "Your first sale is recorded.",
+    tracked: true,
   },
   {
     id: "first_revenue",
     title: "First revenue",
-    description: "Money received for your product or service.",
-    tracked: false,
+    description: "A sale verified with evidence of payment.",
+    tracked: true,
   },
   {
     id: "cofounder_mode",
     title: "You become the CEO",
     description: "NanoCrab steps back to be your AI Co-Founder.",
-    tracked: false,
+    tracked: true,
   },
 ]
 
@@ -81,11 +80,14 @@ function isDone(id: MilestoneId, state: JourneyState): boolean {
       return Boolean(state.profile?.onboardingCompletedAt)
     case "business_workspace":
       return state.business !== null
+    case "business_plan":
+      return Boolean(state.hasActivePlan)
+    case "first_customer":
+      return Boolean(state.hasSale || state.hasVerifiedRevenue)
+    case "first_revenue":
+      return Boolean(state.hasVerifiedRevenue)
     case "cofounder_mode":
       return state.business?.operatingMode === "cofounder"
-    default:
-      // Not tracked yet: never shown as done.
-      return false
   }
 }
 
@@ -165,13 +167,61 @@ export function getNextAction(state: JourneyState): NextAction {
     }
   }
 
+  if (!state.hasActivePlan) {
+    return {
+      id: "create_plan",
+      title: "Create your business plan",
+      reason:
+        "A short, realistic plan keeps your next steps focused. Write it yourself or let NanoCrab draft it for your review.",
+      href: "/plan",
+      cta: "Open Business Plan",
+      source: "rules",
+    }
+  }
+
+  if (!state.hasSale && !state.hasVerifiedRevenue) {
+    return {
+      id: "first_customer",
+      title: "Win your first customer",
+      reason:
+        "Ask your AI CEO for a concrete first-customer plan, then approve the tasks that come out of it.",
+      href: "/ceo",
+      cta: "Ask your AI CEO",
+      source: "rules",
+    }
+  }
+
+  if (!state.hasVerifiedRevenue) {
+    return {
+      id: "verify_revenue",
+      title: "Verify your first sale",
+      reason:
+        "Add evidence of payment (a receipt or payment reference) to confirm your first revenue milestone.",
+      href: "/revenue",
+      cta: "Open Revenue",
+      source: "rules",
+    }
+  }
+
+  if (business.operatingMode === "ceo") {
+    return {
+      id: "take_the_lead",
+      title: "You've earned your first revenue",
+      reason:
+        "You can now take the lead as CEO and make NanoCrab your AI Co-Founder — if you want to.",
+      href: "/revenue",
+      cta: "Review the transition",
+      source: "rules",
+    }
+  }
+
   return {
-    id: "await_planning",
-    title: "Validate the opportunity and build your plan",
+    id: "grow",
+    title: "Plan your next stage of growth",
     reason:
-      "Your profile and workspace are ready. Opportunity evaluation and planning tools are the next features being built.",
-    href: null,
-    cta: null,
+      "Review performance with your AI Co-Founder and decide what to focus on next.",
+    href: "/ceo",
+    cta: "Open AI Co-Founder",
     source: "rules",
   }
 }
