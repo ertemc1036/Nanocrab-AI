@@ -1,9 +1,19 @@
 "use client"
 
-import { BotIcon, MoreHorizontalIcon, PencilIcon, Trash2Icon } from "lucide-react"
+import {
+  BotIcon,
+  MoreHorizontalIcon,
+  OctagonAlertIcon,
+  PencilIcon,
+  Trash2Icon,
+} from "lucide-react"
 import { useOptimistic, useState, useTransition } from "react"
 
-import { deleteTaskAction, setTaskStatusAction } from "@/app/(app)/tasks/actions"
+import {
+  deleteTaskAction,
+  setTaskBlockedAction,
+  setTaskStatusAction,
+} from "@/app/(app)/tasks/actions"
 import { TaskForm } from "@/components/tasks/task-form"
 import {
   AlertDialog,
@@ -17,6 +27,8 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import {
   Dialog,
   DialogContent,
@@ -88,6 +100,8 @@ function TaskRow({ task, today }: { task: BusinessTask; today: string }) {
   const [pending, startTransition] = useTransition()
   const [editing, setEditing] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [blocking, setBlocking] = useState(false)
+  const [reason, setReason] = useState("")
   const [error, setError] = useState<string | null>(null)
   // Optimistic status so the checkbox responds instantly; reverts if the save fails.
   const [status, setOptimisticStatus] = useOptimistic(task.status)
@@ -100,6 +114,14 @@ function TaskRow({ task, today }: { task: BusinessTask; today: string }) {
       const r = await setTaskStatusAction(task.id, next)
       setError(r.ok ? null : (r.message ?? "Couldn't update."))
     })
+
+  const setBlocked = (next: string) =>
+    startTransition(async () => {
+      const r = await setTaskBlockedAction(task.id, next)
+      setError(r.ok ? null : (r.message ?? "Couldn't update."))
+      if (r.ok) setBlocking(false)
+    })
+  const blocked = !done && task.blockedReason.trim() !== ""
 
   return (
     <li
@@ -130,6 +152,28 @@ function TaskRow({ task, today }: { task: BusinessTask; today: string }) {
         {task.description ? (
           <p className="mt-0.5 line-clamp-2 text-sm text-muted-foreground">
             {task.description}
+          </p>
+        ) : null}
+        {task.successCriteria || task.deliverable ? (
+          <dl className="mt-1 space-y-0.5 text-xs text-muted-foreground">
+            {task.deliverable ? (
+              <div>
+                <dt className="inline font-medium text-foreground">Deliverable: </dt>
+                <dd className="inline">{task.deliverable}</dd>
+              </div>
+            ) : null}
+            {task.successCriteria ? (
+              <div>
+                <dt className="inline font-medium text-foreground">Done when: </dt>
+                <dd className="inline">{task.successCriteria}</dd>
+              </div>
+            ) : null}
+          </dl>
+        ) : null}
+        {blocked ? (
+          <p className="mt-1.5 flex items-start gap-1.5 text-xs font-medium text-warning">
+            <OctagonAlertIcon className="mt-px size-3.5 shrink-0" />
+            <span className="break-words">Blocked: {task.blockedReason}</span>
           </p>
         ) : null}
         <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
@@ -184,6 +228,24 @@ function TaskRow({ task, today }: { task: BusinessTask; today: string }) {
                 Move to {STATUS_LABEL[s]}
               </DropdownMenuItem>
             ))}
+          {!done ? (
+            blocked ? (
+              <DropdownMenuItem onSelect={() => setBlocked("")}>
+                <OctagonAlertIcon />
+                Unblock
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem
+                onSelect={() => {
+                  setReason("")
+                  setBlocking(true)
+                }}
+              >
+                <OctagonAlertIcon />
+                Mark as blocked
+              </DropdownMenuItem>
+            )
+          ) : null}
           <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive" onSelect={() => setConfirmDelete(true)}>
             <Trash2Icon />
@@ -201,6 +263,41 @@ function TaskRow({ task, today }: { task: BusinessTask; today: string }) {
             </DialogDescription>
           </DialogHeader>
           <TaskForm task={task} onDone={() => setEditing(false)} />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={blocking} onOpenChange={setBlocking}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>What&apos;s blocking this task?</DialogTitle>
+            <DialogDescription>
+              Your AI CEO uses this to help you remove the blocker or find another route.
+            </DialogDescription>
+          </DialogHeader>
+          <form
+            className="grid gap-3"
+            onSubmit={(e) => {
+              e.preventDefault()
+              if (reason.trim()) setBlocked(reason)
+            }}
+          >
+            <Label htmlFor={`block-${task.id}`} className="sr-only">
+              Reason
+            </Label>
+            <Textarea
+              id={`block-${task.id}`}
+              rows={3}
+              maxLength={500}
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="e.g. Waiting for the supplier's price list"
+            />
+            <div>
+              <Button type="submit" disabled={pending || !reason.trim()}>
+                Mark as blocked
+              </Button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
 

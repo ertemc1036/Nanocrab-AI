@@ -6,7 +6,7 @@ import type { BusinessTask, Priority, TaskStatus } from "@/lib/nanocrab-ceo/type
 import type { Tables, TablesUpdate } from "@/lib/supabase/database.types"
 
 const COLUMNS =
-  "id, title, description, status, priority, due_date, source, completed_at, created_at" as const
+  "id, title, description, status, priority, due_date, source, completed_at, created_at, success_criteria, deliverable, blocked_reason" as const
 type Row = Pick<
   Tables<"business_tasks">,
   | "id"
@@ -18,6 +18,9 @@ type Row = Pick<
   | "source"
   | "completed_at"
   | "created_at"
+  | "success_criteria"
+  | "deliverable"
+  | "blocked_reason"
 >
 
 export const TASK_STATUSES = ["todo", "in_progress", "done"] as const
@@ -34,6 +37,9 @@ function toTask(r: Row): BusinessTask {
     source: r.source === "ai" ? "ai" : "user",
     completedAt: r.completed_at,
     createdAt: r.created_at,
+    successCriteria: r.success_criteria,
+    deliverable: r.deliverable,
+    blockedReason: r.blocked_reason,
   }
 }
 
@@ -55,6 +61,8 @@ export type TaskInput = {
   description: string
   priority: Priority
   dueDate: string | null
+  successCriteria?: string
+  deliverable?: string
 }
 
 export async function createTask(
@@ -72,6 +80,8 @@ export async function createTask(
       priority: input.priority,
       due_date: input.dueDate,
       source: input.source ?? "user",
+      success_criteria: input.successCriteria ?? "",
+      deliverable: input.deliverable ?? "",
     })
     .select(COLUMNS)
     .single()
@@ -81,7 +91,7 @@ export async function createTask(
 
 export async function updateTask(
   id: string,
-  input: Partial<TaskInput> & { status?: TaskStatus }
+  input: Partial<TaskInput> & { status?: TaskStatus; blockedReason?: string }
 ): Promise<void> {
   const { user, business, supabase } = await requireWorkspaceScope()
   const patch: TablesUpdate<"business_tasks"> = {}
@@ -89,9 +99,14 @@ export async function updateTask(
   if (input.description !== undefined) patch.description = input.description
   if (input.priority !== undefined) patch.priority = input.priority
   if (input.dueDate !== undefined) patch.due_date = input.dueDate
+  if (input.successCriteria !== undefined) patch.success_criteria = input.successCriteria
+  if (input.deliverable !== undefined) patch.deliverable = input.deliverable
+  if (input.blockedReason !== undefined) patch.blocked_reason = input.blockedReason
   if (input.status !== undefined) {
     patch.status = input.status
     patch.completed_at = input.status === "done" ? new Date().toISOString() : null
+    // Finishing a task clears its blocker.
+    if (input.status === "done") patch.blocked_reason = ""
   }
   const { data, error } = await supabase
     .from("business_tasks")

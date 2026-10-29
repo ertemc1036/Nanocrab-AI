@@ -1,5 +1,6 @@
 import { estimateTokens } from "@/lib/ai/cost"
 
+import type { AccountabilityReport } from "../accountability"
 import { buildFounderContext, renderFounderContext } from "../founder-profile/context"
 import { getModeConfig } from "../modes"
 import { PLAN_SECTIONS, type PlanSections } from "../plan"
@@ -21,6 +22,10 @@ export type WorkspaceSnapshot = {
   memories: FounderMemory[]
   revenue: RevenueTotals
   today: string
+  /** Facts about deadlines and progress, computed from stored tasks. */
+  accountability: AccountabilityReport
+  /** Titles of suggestions the founder recently rejected. */
+  rejectedSuggestions: string[]
 }
 
 const q = (s: string) => JSON.stringify(s)
@@ -81,6 +86,41 @@ export function buildWorkspaceContext(
     `- Operating mode: ${mode.name} (NanoCrab is the ${mode.aiRole}; the founder is the ${mode.founderRole})`,
   ])
 
+  const a = s.accountability
+  const taskLine = (t: BusinessTask) =>
+    `- ${q(clip(t.title, 160))}${t.dueDate ? ` (due ${t.dueDate})` : ""}${t.blockedReason ? ` — blocked: ${q(clip(t.blockedReason, 160))}` : ""}`
+  addBlock("Accountability check (computed from stored tasks — facts, not estimates)", [
+    `- Today: ${a.today}. Last session: ${a.lastSessionAt ? a.lastSessionAt.slice(0, 10) : "none (first session)"}.`,
+    `- Task completion: ${a.done} of ${a.total} done (${a.completionPct}%), ${a.open} open, ${a.inProgress.length} in progress.`,
+    `- Overdue (${a.overdue.length}):`,
+    ...a.overdue.slice(0, 8).map(taskLine),
+    `- Due within 2 days (${a.dueSoon.length}):`,
+    ...a.dueSoon.slice(0, 6).map(taskLine),
+    `- Blocked (${a.blocked.length}):`,
+    ...a.blocked.slice(0, 6).map(taskLine),
+    `- Completed since last session (${a.completedSinceLastSession.length}):`,
+    ...a.completedSinceLastSession.slice(0, 6).map((t) => `- ${q(clip(t.title, 160))}`),
+    `- Next milestone: ${a.nextMilestone ? `${q(clip(a.nextMilestone.title, 160))}${a.nextMilestone.targetDate ? ` (target ${a.nextMilestone.targetDate})` : ""}` : "none set"}`,
+    `- Most important open task: ${a.mostImportant ? `${q(clip(a.mostImportant.title, 160))} — ${a.mostImportant.reason}` : "none"}`,
+    `- Capacity: ${s.profile.weeklyHours !== null ? `${s.profile.weeklyHours} hours per week (≈${Math.round((s.profile.weeklyHours / 7) * 10) / 10} h/day)` : "weekly hours unknown"}; ${a.open} open tasks.`,
+  ])
+
+  const missing: string[] = []
+  if (!s.business.description.trim()) missing.push("business description")
+  if (!s.plan) missing.push("an approved business plan")
+  if (s.tasks.length === 0) missing.push("any tasks")
+  if (s.milestones.length === 0) missing.push("milestones")
+  if (s.revenue.length === 0) missing.push("revenue records")
+  addBlock(
+    "Missing information (acknowledge it; ask only if essential to the decision)",
+    missing.length ? [`- Not recorded yet: ${missing.join(", ")}.`] : []
+  )
+
+  addBlock(
+    "Suggestions the founder rejected recently (do not propose again unless asked)",
+    s.rejectedSuggestions.slice(0, 10).map((t) => `- ${q(clip(t, 160))}`)
+  )
+
   addBlock(
     "Saved memories (confirmed by the founder)",
     s.memories.map((m) => `- [${m.category}] ${q(clip(m.content, 300))}`),
@@ -127,7 +167,7 @@ export function buildWorkspaceContext(
     `Open tasks (${open.length})`,
     open.map(
       (t) =>
-        `- [${t.status}, ${t.priority}${t.dueDate ? `, due ${t.dueDate}` : ""}] ${q(clip(t.title, 200))}`
+        `- [${t.status}, ${t.priority}${t.dueDate ? `, due ${t.dueDate}` : ""}${t.blockedReason ? ", blocked" : ""}] ${q(clip(t.title, 200))}${t.successCriteria ? ` — done when: ${q(clip(t.successCriteria, 200))}` : ""}`
     ),
     "(none)"
   )

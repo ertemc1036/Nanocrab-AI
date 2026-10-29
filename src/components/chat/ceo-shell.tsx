@@ -3,12 +3,24 @@ import { CrownIcon, HandshakeIcon } from "lucide-react"
 
 import { ChatView } from "@/components/chat/chat-view"
 import { ConversationList } from "@/components/chat/conversation-list"
+import { ExecutiveToggle } from "@/components/chat/executive-toggle"
 import { MobileConversations } from "@/components/chat/mobile-conversations"
 import { getAIConfig } from "@/lib/ai/config"
-import { getConversation, listConversations, listMessages } from "@/lib/dal/chat"
+import {
+  getConversation,
+  getLastActivityAt,
+  listConversations,
+  listMessages,
+} from "@/lib/dal/chat"
+import { getMyFounderProfile } from "@/lib/dal/founder"
+import { listMilestones } from "@/lib/dal/milestones"
 import { listProposals } from "@/lib/dal/proposals"
+import { listTasks } from "@/lib/dal/tasks"
 import { requireWorkspaceScope } from "@/lib/dal/workspace"
+import { buildAccountabilityReport } from "@/lib/nanocrab-ceo/accountability"
+import { starterPrompts } from "@/lib/nanocrab-ceo/leadership"
 import { getModeConfig } from "@/lib/nanocrab-ceo/modes"
+import type { ChatBriefing } from "@/components/chat/chat-view"
 
 /** AI CEO page body: conversation history + chat. Reads the session. */
 export async function CeoShell({ conversationId }: { conversationId: string | null }) {
@@ -17,9 +29,10 @@ export async function CeoShell({ conversationId }: { conversationId: string | nu
   const mode = getModeConfig(scope.business.operatingMode)
   const ModeIcon = scope.business.operatingMode === "ceo" ? CrownIcon : HandshakeIcon
 
-  const [conversations, conversation] = await Promise.all([
+  const [conversations, conversation, founder] = await Promise.all([
     listConversations(scope),
     conversationId ? getConversation(conversationId, scope) : Promise.resolve(null),
+    getMyFounderProfile(),
   ])
   if (conversationId && !conversation) notFound()
 
@@ -29,6 +42,29 @@ export async function CeoShell({ conversationId }: { conversationId: string | nu
         listProposals({ conversationId: conversation.id, limit: 30 }),
       ])
     : [[], []]
+
+  // A new conversation opens with a factual status briefing from stored tasks.
+  let briefing: ChatBriefing | null = null
+  if (!conversation) {
+    const [tasks, milestones, lastSessionAt] = await Promise.all([
+      listTasks(scope),
+      listMilestones(scope),
+      getLastActivityAt(scope),
+    ])
+    if (tasks.length) {
+      const today = new Date().toISOString().slice(0, 10)
+      const r = buildAccountabilityReport(tasks, milestones, today, lastSessionAt)
+      briefing = {
+        open: r.open,
+        overdue: r.overdue.length,
+        dueSoon: r.dueSoon.length,
+        blocked: r.blocked.length,
+        completedSinceLastSession: r.completedSinceLastSession.length,
+        completionPct: r.completionPct,
+        focus: r.mostImportant?.title ?? null,
+      }
+    }
+  }
 
   return (
     <div className="flex h-[calc(100dvh-7.5rem)] flex-col lg:h-[calc(100dvh-5rem)]">
@@ -42,7 +78,10 @@ export async function CeoShell({ conversationId }: { conversationId: string | nu
             {mode.name} · {scope.business.name}
           </p>
         </div>
-        <MobileConversations conversations={conversations} />
+        <div className="flex items-center gap-2">
+          {founder ? <ExecutiveToggle style={founder.leadershipStyle} /> : null}
+          <MobileConversations conversations={conversations} />
+        </div>
       </div>
       <div className="grid min-h-0 flex-1 gap-6 lg:grid-cols-[240px_1fr]">
         <aside aria-label="Conversations" className="hidden min-h-0 lg:block">
@@ -62,6 +101,8 @@ export async function CeoShell({ conversationId }: { conversationId: string | nu
             aiConfigured={config.hasApiKey}
             maxInputChars={config.maxInputChars}
             assistantName="NanoCrab"
+            starters={starterPrompts(founder?.preferredLanguage ?? null)}
+            briefing={briefing}
           />
         </section>
       </div>

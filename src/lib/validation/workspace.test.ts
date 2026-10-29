@@ -23,7 +23,14 @@ describe("workspace validation", () => {
         priority: "high",
         dueDate: "",
       })
-    ).toEqual({ title: "Call", description: "", priority: "high", dueDate: null })
+    ).toEqual({
+      title: "Call",
+      description: "",
+      priority: "high",
+      dueDate: null,
+      successCriteria: "",
+      deliverable: "",
+    })
     expect(
       taskInputSchema.safeParse({
         title: "",

@@ -42,6 +42,7 @@ function describe(p: Proposal): {
   body?: string
   meta?: string
   rationale?: string
+  facts?: { label: string; value: string }[]
 } {
   switch (p.kind) {
     case "task":
@@ -50,6 +51,10 @@ function describe(p: Proposal): {
         body: p.payload.description || undefined,
         meta: `${p.payload.priority} priority${p.payload.dueInDays !== null ? ` · due in ${p.payload.dueInDays} day${p.payload.dueInDays === 1 ? "" : "s"}` : ""}`,
         rationale: p.payload.rationale || undefined,
+        facts: [
+          { label: "Deliverable", value: p.payload.deliverable },
+          { label: "Done when", value: p.payload.successCriteria },
+        ].filter((f) => f.value.trim() !== ""),
       }
     case "next_action":
       return { title: p.payload.title, rationale: p.payload.reason || undefined }
@@ -122,6 +127,16 @@ export function ProposalCard({ proposal }: { proposal: Proposal }) {
         <p className="mt-1.5 text-xs text-muted-foreground first-letter:uppercase">
           {d.meta}
         </p>
+      ) : null}
+      {d.facts?.length ? (
+        <dl className="mt-2 space-y-1 text-xs">
+          {d.facts.map((f) => (
+            <div key={f.label}>
+              <dt className="inline font-medium text-foreground">{f.label}: </dt>
+              <dd className="inline text-muted-foreground">{f.value}</dd>
+            </div>
+          ))}
+        </dl>
       ) : null}
       {d.rationale ? (
         <p className="mt-2 border-l-2 pl-2 text-xs text-muted-foreground italic">

@@ -30,12 +30,27 @@ type StreamEvent =
   | { type: "done"; messageId: string | null; status: "complete" | "cancelled" }
   | { type: "error"; message: string }
 
-const STARTERS = [
-  "What should I focus on this week?",
-  "Help me find my first paying customers.",
-  "Challenge my business idea — what could go wrong?",
-  "Help me write my first offer.",
-]
+/** Facts shown before a new conversation, computed server-side from stored tasks. */
+export type ChatBriefing = {
+  open: number
+  overdue: number
+  dueSoon: number
+  blocked: number
+  completedSinceLastSession: number
+  completionPct: number
+  focus: string | null
+}
+
+function briefingLines(b: ChatBriefing): string[] {
+  const lines: string[] = []
+  if (b.completedSinceLastSession)
+    lines.push(`${b.completedSinceLastSession} completed since your last session`)
+  if (b.overdue) lines.push(`${b.overdue} overdue`)
+  if (b.blocked) lines.push(`${b.blocked} blocked`)
+  if (b.dueSoon) lines.push(`${b.dueSoon} due in the next 2 days`)
+  lines.push(`${b.open} open · ${b.completionPct}% done`)
+  return lines
+}
 
 export function ChatView({
   conversationId: initialConversationId,
@@ -44,6 +59,8 @@ export function ChatView({
   aiConfigured,
   maxInputChars,
   assistantName,
+  starters,
+  briefing,
 }: {
   conversationId: string | null
   initialMessages: ChatMessageView[]
@@ -51,6 +68,8 @@ export function ChatView({
   aiConfigured: boolean
   maxInputChars: number
   assistantName: string
+  starters: string[]
+  briefing: ChatBriefing | null
 }) {
   const router = useRouter()
   const [conversationId, setConversationId] = useState(initialConversationId)
@@ -188,15 +207,34 @@ export function ChatView({
               <SparklesIcon className="size-6 text-primary" />
             </div>
             <h2 className="mt-5 text-xl font-semibold tracking-tight">
-              What are we working on today?
+              {assistantName} is ready to brief you
             </h2>
             <p className="mt-2 max-w-md text-sm text-muted-foreground">
-              {assistantName} knows your profile, business, plan, tasks and memory. Ask in
-              English, Deutsch or Türkçe.
+              It knows your profile, business, plan, tasks and memory, and decides the
+              next priority with you. Deutsch, English or Türkçe.
             </p>
+            {briefing ? (
+              <div
+                aria-label="Status since your last session"
+                className="mt-5 w-full max-w-xl rounded-xl border bg-card/60 px-4 py-3 text-left text-sm"
+              >
+                <p className="text-xs font-medium tracking-wide text-primary uppercase">
+                  Status from your tasks
+                </p>
+                <p className="mt-1 text-muted-foreground">
+                  {briefingLines(briefing).join(" · ")}
+                </p>
+                {briefing.focus ? (
+                  <p className="mt-1">
+                    <span className="text-muted-foreground">Focus: </span>
+                    {briefing.focus}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
             {aiConfigured ? (
               <div className="mt-6 grid w-full max-w-xl gap-2 sm:grid-cols-2">
-                {STARTERS.map((s) => (
+                {starters.map((s) => (
                   <button
                     key={s}
                     type="button"

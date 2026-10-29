@@ -5,11 +5,23 @@ import { refresh } from "next/cache"
 import { requireUser } from "@/lib/dal/auth"
 import { createTask, deleteTask, updateTask } from "@/lib/dal/tasks"
 import { fieldErrorsFrom, readForm, type FormState } from "@/lib/validation/form"
-import { taskInputSchema, taskStatusSchema, uuidSchema } from "@/lib/validation/workspace"
+import {
+  blockedReasonSchema,
+  taskInputSchema,
+  taskStatusSchema,
+  uuidSchema,
+} from "@/lib/validation/workspace"
 
 export type ActionResult = { ok: boolean; message?: string }
 
-const FIELDS = ["title", "description", "priority", "dueDate"] as const
+const FIELDS = [
+  "title",
+  "description",
+  "priority",
+  "dueDate",
+  "successCriteria",
+  "deliverable",
+] as const
 
 export async function createTaskAction(
   _prev: FormState,
@@ -73,6 +85,26 @@ export async function setTaskStatusAction(
   }
   refresh()
   return { ok: true }
+}
+
+/** Marks a task blocked with a reason, or unblocks it with an empty reason. */
+export async function setTaskBlockedAction(
+  id: string,
+  reason: string
+): Promise<ActionResult> {
+  await requireUser()
+  const parsedId = uuidSchema.safeParse(id)
+  const parsedReason = blockedReasonSchema.safeParse(reason)
+  if (!parsedId.success) return { ok: false, message: "Invalid task." }
+  if (!parsedReason.success)
+    return { ok: false, message: parsedReason.error.issues[0]?.message }
+  try {
+    await updateTask(parsedId.data, { blockedReason: parsedReason.data })
+  } catch {
+    return { ok: false, message: "Couldn't update the task." }
+  }
+  refresh()
+  return { ok: true, message: parsedReason.data ? "Marked as blocked." : "Unblocked." }
 }
 
 export async function deleteTaskAction(id: string): Promise<ActionResult> {

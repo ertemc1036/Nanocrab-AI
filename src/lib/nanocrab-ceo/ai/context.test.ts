@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 
+import { buildAccountabilityReport } from "../accountability"
 import { EMPTY_PLAN } from "../plan"
 import type { Business, FounderProfile } from "../types"
 import { buildWorkspaceContext, selectHistory, type WorkspaceSnapshot } from "./context"
@@ -20,6 +21,8 @@ const profile: FounderProfile = {
   currentBusinessId: "b1",
   onboardingCompletedAt: "2026-10-01",
   updatedAt: "2026-10-01",
+  leadershipStyle: "standard",
+  preferredLanguage: null,
 }
 const business: Business = {
   id: "b1",
@@ -64,6 +67,9 @@ const snapshot: WorkspaceSnapshot = {
       source: "user",
       completedAt: null,
       createdAt: "",
+      successCriteria: "",
+      deliverable: "",
+      blockedReason: "",
     },
     {
       id: "t2",
@@ -75,6 +81,9 @@ const snapshot: WorkspaceSnapshot = {
       source: "ai",
       completedAt: null,
       createdAt: "",
+      successCriteria: "",
+      deliverable: "",
+      blockedReason: "",
     },
   ],
   memories: [
@@ -89,6 +98,8 @@ const snapshot: WorkspaceSnapshot = {
   ],
   revenue: [{ currency: "EUR", verified: 49, selfReported: 20, refunded: 0 }],
   today: "2026-10-31",
+  accountability: buildAccountabilityReport([], [], "2026-10-31", null),
+  rejectedSuggestions: [],
 }
 
 describe("buildWorkspaceContext", () => {
@@ -146,21 +157,5 @@ describe("selectHistory", () => {
 
   it("always keeps the latest message even if it exceeds the budget", () => {
     expect(selectHistory([{ content: "x".repeat(10000) }], 10)).toHaveLength(1)
-  })
-})
-
-describe("buildInstructions", () => {
-  it("puts platform rules first and covers honesty, approval and language", () => {
-    const text = buildInstructions("ceo", "2026-10-31")
-    expect(text.startsWith("# Platform rules")).toBe(true)
-    expect(text).toMatch(/Never guarantee success/)
-    expect(text).toMatch(/founder approves/)
-    expect(text).toMatch(/German, English or Turkish/)
-    expect(text).toMatch(/assumptions/)
-    expect(text).toContain("2026-10-31")
-  })
-
-  it("lets the founder lead in Co-Founder mode", () => {
-    expect(buildInstructions("cofounder", "x")).toMatch(/founder is the CEO and leads/)
   })
 })

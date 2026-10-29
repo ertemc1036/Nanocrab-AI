@@ -12,6 +12,8 @@ describe("parseProposalCall", () => {
           description: "",
           priority: "high",
           dueInDays: 3,
+          successCriteria: "",
+          deliverable: "",
           rationale: "",
         })
       )
@@ -48,6 +50,18 @@ describe("parseProposalCall", () => {
 })
 
 describe("validateProposalPayload", () => {
+  it("accepts task proposals stored before successCriteria/deliverable existed", () => {
+    expect(
+      validateProposalPayload("task", {
+        title: "Old task",
+        description: "",
+        priority: "low",
+        dueInDays: null,
+        rationale: "",
+      })
+    ).toMatchObject({ successCriteria: "", deliverable: "" })
+  })
+
   it("re-validates stored payloads before execution", () => {
     expect(
       validateProposalPayload("milestone", {

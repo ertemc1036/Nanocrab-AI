@@ -35,6 +35,8 @@ describe("executeProposal", () => {
           description: "",
           priority: "high",
           dueInDays: 2,
+          successCriteria: "3 calls done",
+          deliverable: "Call notes",
           rationale: "",
         },
       },
@@ -46,6 +48,8 @@ describe("executeProposal", () => {
       priority: "high",
       dueDate: "2026-11-02",
       source: "ai",
+      successCriteria: "3 calls done",
+      deliverable: "Call notes",
     })
   })
 

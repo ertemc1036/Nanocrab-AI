@@ -10,6 +10,8 @@ export type CommandDeps = {
     priority: Priority
     dueDate: string | null
     source: "ai"
+    successCriteria?: string
+    deliverable?: string
   }): Promise<unknown>
   createMilestone(input: {
     title: string
@@ -54,6 +56,8 @@ export async function executeProposal(
         priority: p.priority,
         dueDate: p.dueInDays === null ? null : addDays(deps.today(), p.dueInDays),
         source: "ai",
+        successCriteria: p.successCriteria,
+        deliverable: p.deliverable,
       })
       return "Task added."
     }

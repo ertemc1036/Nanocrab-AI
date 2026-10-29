@@ -2,6 +2,8 @@ import type { CountryCode } from "./founder-profile/countries"
 import type { BusinessPreference, Goal } from "./founder-profile/options"
 
 export type OperatingMode = "ceo" | "cofounder"
+export type LeadershipStyle = "standard" | "executive"
+export type PreferredLanguage = "de" | "en" | "tr"
 
 /** A founder's onboarding answers. Null/empty means unknown (skipped). */
 export type FounderProfile = {
@@ -19,6 +21,9 @@ export type FounderProfile = {
   currentBusinessId: string | null
   onboardingCompletedAt: string | null
   updatedAt: string
+  leadershipStyle: LeadershipStyle
+  /** null = no preference (German by default, mirroring the founder). */
+  preferredLanguage: PreferredLanguage | null
 }
 
 export type Business = {
@@ -45,6 +50,10 @@ export type BusinessTask = {
   source: "user" | "ai"
   completedAt: string | null
   createdAt: string
+  successCriteria: string
+  deliverable: string
+  /** Non-empty means the founder marked the task as blocked. */
+  blockedReason: string
 }
 
 export type BusinessMilestone = {

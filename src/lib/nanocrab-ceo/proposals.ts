@@ -25,7 +25,17 @@ export const taskProposalSchema = z.object({
   description: z.string().trim().max(2000),
   priority: z.enum(PRIORITIES),
   dueInDays: z.number().int().min(0).max(365).nullable(),
+  /** Measurable definition of done. */
+  successCriteria: z.string().trim().max(1000),
+  /** What the founder hands in when done. */
+  deliverable: z.string().trim().max(500),
   rationale: z.string().trim().max(600),
+})
+
+/** Stored task proposals from before V2 have no successCriteria/deliverable. */
+const storedTaskProposalSchema = taskProposalSchema.extend({
+  successCriteria: z.string().trim().max(1000).default(""),
+  deliverable: z.string().trim().max(500).default(""),
 })
 
 export const milestoneProposalSchema = z.object({
@@ -86,7 +96,7 @@ export const PROPOSAL_TOOLS: {
     name: "propose_task",
     kind: "task",
     description:
-      "Propose ONE concrete task for the founder's task list. The founder must approve it. Use for clear, actionable next steps (max 3 per reply).",
+      "Propose ONE concrete, executable task with a measurable success criterion and a clear deliverable. The founder must approve it. Max 3 per reply.",
   },
   {
     name: "propose_milestone",
@@ -140,7 +150,8 @@ export function validateProposalPayload<K extends ProposalKind>(
   kind: K,
   payload: unknown
 ): ProposalPayload<K> | null {
-  const parsed = PROPOSAL_SCHEMAS[kind].safeParse(payload)
+  const schema = kind === "task" ? storedTaskProposalSchema : PROPOSAL_SCHEMAS[kind]
+  const parsed = schema.safeParse(payload)
   return parsed.success ? (parsed.data as ProposalPayload<K>) : null
 }
 

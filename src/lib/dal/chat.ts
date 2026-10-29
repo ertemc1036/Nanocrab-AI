@@ -157,3 +157,18 @@ export async function deleteConversation(id: string): Promise<void> {
   if (error) throw new DataAccessError("delete conversation", error)
   if (data.length !== 1) throw new DataAccessError("delete conversation: not found")
 }
+
+/** When the founder last talked to NanoCrab about this business (any conversation). */
+export async function getLastActivityAt(scope: WorkspaceScope): Promise<string | null> {
+  const { user, business, supabase } = scope
+  const { data, error } = await supabase
+    .from("conversations")
+    .select("last_message_at")
+    .eq("user_id", user.id)
+    .eq("business_id", business.id)
+    .order("last_message_at", { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  if (error) throw new DataAccessError("get last activity", error)
+  return data?.last_message_at ?? null
+}

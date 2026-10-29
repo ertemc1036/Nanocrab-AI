@@ -28,12 +28,44 @@ Built per request, only from the signed-in founder's data (RLS + DAL):
 | Business + operating mode                         | `businesses`                            | 〃                                 |
 | Approved memories                                 | `founder_memories`                      | 〃                                 |
 | Active plan + assumptions                         | `business_plans`                        | 〃 (sections clipped)              |
+| Accountability check + missing info               | computed from tasks/milestones          | 〃                                 |
 | Milestones, open/recent tasks                     | `business_milestones`, `business_tasks` | 〃                                 |
 | Revenue totals per currency                       | `revenue_records`                       | 〃                                 |
 | Recent messages of this conversation              | `messages`                              | separate `AI_CONTEXT_TOKEN_BUDGET` |
 
 Founder-written text is JSON-quoted and labelled as data, and the rules say
 it can never override platform rules (prompt-injection mitigation).
+
+## Leadership styles (Standard CEO / Executive CEO)
+
+Leadership style controls **how** NanoCrab leads; operating mode (AI CEO vs AI
+Co-Founder) controls **who** leads. Both are stored server-side
+(`founder_profiles.leadership_style`, `preferred_language`) and read by the
+chat route on every request — the toggle changes the model's instructions,
+not just a label.
+
+- **Standard CEO** (default): direct recommendation, collaborative planning,
+  flexible accountability.
+- **Executive CEO** (opt-in via Settings → CEO leadership or the "Executive
+  Mode" switch on the AI CEO page): one objective, imperative orders, at most
+  three immediate tasks, overdue work must be finished or re-planned before
+  anything new, strict follow-up — firm and constructive, never shaming.
+
+Execution replies use a fixed, localized format (CEO DIRECTIVE / WHY / YOUR
+ORDERS / DEADLINE / SUCCESS CRITERIA / REPORT BACK; German headings by
+default). Simple factual questions get a short natural answer. Deadlines are
+always _proposed_, never claimed as agreed.
+
+Each request also includes an **accountability check** computed from stored
+tasks (`nanocrab-ceo/accountability.ts`): overdue, due within 2 days, blocked
+(with reason), completed since the last session, completion %, next
+milestone, most important task, weekly capacity, an explicit list of missing
+information, and recently dismissed suggestions (not to be re-proposed). The
+Command Center's "Today's CEO directive" uses the same report — no AI call,
+no invented numbers.
+
+Task proposals carry `successCriteria` and `deliverable`; older stored
+proposals without them still validate (defaults to empty).
 
 ## Workspace commands (proposals)
 

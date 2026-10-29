@@ -7,6 +7,7 @@ import { SubmitButton } from "@/components/forms/submit-button"
 import { PageHeader } from "@/components/layout/page-header"
 import { ChangePasswordForm } from "@/components/settings/change-password-form"
 import { DeleteAccountDialog } from "@/components/settings/delete-account-dialog"
+import { LeadershipSettings } from "@/components/settings/leadership-settings"
 import { ProfileForm } from "@/components/settings/profile-form"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -18,12 +19,13 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { logOutAction } from "@/lib/auth/actions"
+import { getMyFounderProfile } from "@/lib/dal/founder"
 import { getMyProfile } from "@/lib/dal/profiles"
 
 export const metadata: Metadata = { title: "Settings" }
 
 export default async function SettingsPage() {
-  const profile = await getMyProfile()
+  const [profile, founder] = await Promise.all([getMyProfile(), getMyFounderProfile()])
   const memberSince = new Intl.DateTimeFormat("en", {
     dateStyle: "long",
     timeZone: "UTC",
@@ -58,6 +60,29 @@ export default async function SettingsPage() {
               Edit founder profile
             </Link>
           </Button>
+        </CardContent>
+      </Card>
+
+      <Card id="leadership">
+        <CardHeader>
+          <CardTitle>CEO leadership</CardTitle>
+          <CardDescription>
+            How your AI CEO leads you. Executive Mode sets one priority, gives at most
+            three direct orders and follows up strictly on unfinished work. It never acts
+            without your approval.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {founder ? (
+            <LeadershipSettings
+              style={founder.leadershipStyle}
+              language={founder.preferredLanguage}
+            />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Complete your founder profile first to choose a leadership style.
+            </p>
+          )}
         </CardContent>
       </Card>
 

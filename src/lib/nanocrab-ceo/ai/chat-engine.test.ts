@@ -104,6 +104,8 @@ describe("runChatTurn", () => {
               description: "",
               priority: "high",
               dueInDays: 7,
+              successCriteria: "5 cafés answered",
+              deliverable: "Interview notes",
               rationale: "Validate demand",
             }),
           },

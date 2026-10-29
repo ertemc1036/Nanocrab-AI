@@ -309,6 +309,9 @@ export type Database = {
           completed_at: string | null
           created_at: string
           updated_at: string
+          success_criteria: string
+          deliverable: string
+          blocked_reason: string
         }
         Insert: {
           id?: string
@@ -323,6 +326,9 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           updated_at?: string
+          success_criteria?: string
+          deliverable?: string
+          blocked_reason?: string
         }
         Update: {
           id?: string
@@ -337,6 +343,9 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           updated_at?: string
+          success_criteria?: string
+          deliverable?: string
+          blocked_reason?: string
         }
         Relationships: [
           {
@@ -491,6 +500,8 @@ export type Database = {
           onboarding_completed_at: string | null
           created_at: string
           updated_at: string
+          leadership_style: string
+          preferred_language: string | null
         }
         Insert: {
           user_id?: string
@@ -509,6 +520,8 @@ export type Database = {
           onboarding_completed_at?: string | null
           created_at?: string
           updated_at?: string
+          leadership_style?: string
+          preferred_language?: string | null
         }
         Update: {
           user_id?: string
@@ -527,6 +540,8 @@ export type Database = {
           onboarding_completed_at?: string | null
           created_at?: string
           updated_at?: string
+          leadership_style?: string
+          preferred_language?: string | null
         }
         Relationships: [
           {

@@ -29,9 +29,21 @@ export const taskInputSchema = z.object({
   description: z.string().trim().max(2000, "Use at most 2000 characters."),
   priority: z.enum(PRIORITIES, { error: "Choose a priority." }),
   dueDate: optionalDate,
+  successCriteria: z
+    .string()
+    .trim()
+    .max(1000, "Use at most 1000 characters.")
+    .default(""),
+  deliverable: z.string().trim().max(500, "Use at most 500 characters.").default(""),
 })
 
 export const taskStatusSchema = z.enum(["todo", "in_progress", "done"])
+
+/** Empty string = unblock. */
+export const blockedReasonSchema = z
+  .string()
+  .trim()
+  .max(500, "Use at most 500 characters.")
 
 export const milestoneInputSchema = z.object({
   title: z

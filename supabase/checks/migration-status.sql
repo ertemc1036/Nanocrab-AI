@@ -20,7 +20,12 @@ from (values
   ('20261031000100', 'ai_ceo_workspace',
      to_regclass('public.business_plans') is not null
      and to_regclass('public.revenue_records') is not null
-     and to_regprocedure('public.begin_ai_request(text,text,text,bigint,uuid,uuid,integer,integer,bigint,bigint)') is not null)
+     and to_regprocedure('public.begin_ai_request(text,text,text,bigint,uuid,uuid,integer,integer,bigint,bigint)') is not null),
+  ('20261101000100', 'executive_ceo',
+     exists (select 1 from information_schema.columns
+             where table_schema = 'public' and table_name = 'founder_profiles' and column_name = 'leadership_style')
+     and exists (select 1 from information_schema.columns
+             where table_schema = 'public' and table_name = 'business_tasks' and column_name = 'blocked_reason'))
 ) as m(version, name, applied)
 order by m.version;
 

@@ -34,7 +34,12 @@ export async function runStructuredTask<T>(params: {
 
   const snapshot = await loadWorkspaceSnapshot(params.scope)
   const context = buildWorkspaceContext(snapshot, config.contextTokenBudget)
-  const instructions = `${buildInstructions(params.scope.business.operatingMode, snapshot.today)}\n\n${context.text}`
+  const instructions = `${buildInstructions({
+    mode: params.scope.business.operatingMode,
+    style: snapshot.profile.leadershipStyle,
+    language: snapshot.profile.preferredLanguage,
+    today: snapshot.today,
+  })}\n\n${context.text}`
   const estimatedInput = estimateTokens(instructions) + estimateTokens(params.task)
 
   const requestId = await beginAIRequest(params.scope, config, {

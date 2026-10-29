@@ -18,6 +18,8 @@ const profile: FounderProfile = {
   currentBusinessId: null,
   onboardingCompletedAt: "2026-10-29T00:00:00Z",
   updatedAt: "2026-10-29T00:00:00Z",
+  leadershipStyle: "standard",
+  preferredLanguage: null,
 }
 
 const business: Business = {

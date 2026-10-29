@@ -10,12 +10,18 @@ import {
   GOAL_VALUES,
 } from "@/lib/nanocrab-ceo/founder-profile/options"
 import type { FounderProfileData } from "@/lib/nanocrab-ceo/founder-profile/schema"
-import type { FounderProfile } from "@/lib/nanocrab-ceo/types"
+import type {
+  FounderProfile,
+  LeadershipStyle,
+  PreferredLanguage,
+} from "@/lib/nanocrab-ceo/types"
 import type { Tables } from "@/lib/supabase/database.types"
 import { createClient } from "@/lib/supabase/server"
 
+const LANGUAGE_CODES = ["de", "en", "tr"] as const
+
 const COLUMNS =
-  "user_id, goal, goal_details, skills, interests, weekly_hours, budget_amount, budget_currency, business_preference, has_idea, idea_description, country_code, current_business_id, onboarding_completed_at, updated_at" as const
+  "user_id, goal, goal_details, skills, interests, weekly_hours, budget_amount, budget_currency, business_preference, has_idea, idea_description, country_code, current_business_id, onboarding_completed_at, updated_at, leadership_style, preferred_language" as const
 
 type Row = Pick<
   Tables<"founder_profiles">,
@@ -34,6 +40,8 @@ type Row = Pick<
   | "current_business_id"
   | "onboarding_completed_at"
   | "updated_at"
+  | "leadership_style"
+  | "preferred_language"
 >
 
 function includes<T extends string>(
@@ -67,6 +75,10 @@ export function toFounderProfile(row: Row): FounderProfile {
     currentBusinessId: row.current_business_id,
     onboardingCompletedAt: row.onboarding_completed_at,
     updatedAt: row.updated_at,
+    leadershipStyle: row.leadership_style === "executive" ? "executive" : "standard",
+    preferredLanguage: includes(LANGUAGE_CODES, row.preferred_language)
+      ? row.preferred_language
+      : null,
   }
 }
 
@@ -125,4 +137,27 @@ export async function saveMyFounderProfile(input: FounderProfileData): Promise<v
     onboarding_completed_at: new Date().toISOString(),
   })
   if (error) throw new DataAccessError("create founder profile", error)
+}
+
+/** Persists how NanoCrab leads (style) and which language it replies in. */
+export async function updateMyLeadershipSettings(settings: {
+  leadershipStyle?: LeadershipStyle
+  preferredLanguage?: PreferredLanguage | null
+}): Promise<void> {
+  const user = await requireUser()
+  const supabase = await createClient()
+  const patch: { leadership_style?: string; preferred_language?: string | null } = {}
+  if (settings.leadershipStyle !== undefined)
+    patch.leadership_style = settings.leadershipStyle
+  if (settings.preferredLanguage !== undefined)
+    patch.preferred_language = settings.preferredLanguage
+  const { data, error } = await supabase
+    .from("founder_profiles")
+    .update(patch)
+    .eq("user_id", user.id)
+    .select("user_id")
+  if (error) throw new DataAccessError("update leadership settings", error)
+  // No row: the founder hasn't completed onboarding yet.
+  if (data?.length !== 1)
+    throw new DataAccessError("update leadership settings: no founder profile")
 }

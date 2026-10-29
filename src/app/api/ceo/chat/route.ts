@@ -97,7 +97,12 @@ export async function POST(request: Request) {
   // Context: workspace (budgeted) + recent history (budgeted) + new message.
   const snapshot = await loadWorkspaceSnapshot(scope)
   const context = buildWorkspaceContext(snapshot, config.contextTokenBudget)
-  const instructions = `${buildInstructions(scope.business.operatingMode, snapshot.today)}\n\n${context.text}`
+  const instructions = `${buildInstructions({
+    mode: scope.business.operatingMode,
+    style: snapshot.profile.leadershipStyle,
+    language: snapshot.profile.preferredLanguage,
+    today: snapshot.today,
+  })}\n\n${context.text}`
   const history = existing
     ? selectHistory(
         (await listMessages(existing.id, scope, 60)).filter(

@@ -50,6 +50,29 @@ export function TaskForm({ task, onDone }: { task?: BusinessTask; onDone?: () =>
           defaultValue={v?.description ?? task?.description ?? ""}
         />
       </div>
+      <div className="grid gap-2">
+        <Label htmlFor={`${prefix}-success`}>Done when… (optional)</Label>
+        <Textarea
+          id={`${prefix}-success`}
+          name="successCriteria"
+          rows={2}
+          maxLength={1000}
+          placeholder="e.g. 5 cafés asked, at least 1 agreed to a trial order"
+          defaultValue={v?.successCriteria ?? task?.successCriteria ?? ""}
+          aria-invalid={state.fieldErrors?.successCriteria ? true : undefined}
+        />
+        {state.fieldErrors?.successCriteria ? (
+          <p className="text-xs text-destructive">{state.fieldErrors.successCriteria}</p>
+        ) : null}
+      </div>
+      <FormField
+        name="deliverable"
+        label="Deliverable (optional)"
+        maxLength={500}
+        placeholder="e.g. A list of replies with names and prices"
+        defaultValue={v?.deliverable ?? task?.deliverable ?? ""}
+        error={state.fieldErrors?.deliverable}
+      />
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="grid gap-2">
           <Label htmlFor={`${prefix}-priority`}>Priority</Label>

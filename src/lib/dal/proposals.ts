@@ -70,7 +70,7 @@ export async function createProposals(
 }
 
 export async function listProposals(filter: {
-  status?: "pending"
+  status?: "pending" | "dismissed"
   kinds?: ProposalKind[]
   conversationId?: string
   limit?: number

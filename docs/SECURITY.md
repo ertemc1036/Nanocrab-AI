@@ -53,6 +53,12 @@ agents(id, user_id)` — mean a row can never reference another user's agent
   validated with Zod twice, applied only after founder approval through
   ownership-checked commands. No tools for external actions exist.
 - Founder-written text in prompts is quoted as data; platform rules come first.
+  This includes task blocker reasons, success criteria and memories.
+- Leadership style and reply language are read from the founder's own row
+  (RLS, column-level grants, CHECK constraints). Executive Mode tightens tone
+  and follow-up but grants no extra permissions: every change is still a
+  pending proposal. Platform rules forbid insults, guilt-tripping, pressure
+  tactics and fabricated progress.
 - AI Markdown renders without raw HTML; links use `noopener noreferrer nofollow`.
 
 ## Application guarantees

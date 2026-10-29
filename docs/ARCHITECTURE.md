@@ -92,19 +92,19 @@ All tables live in `public`, have RLS enabled, carry `user_id` referencing
 Child tables use composite foreign keys `(parent_id, user_id)` so rows can
 never reference another user's data.
 
-| Table                                   | Purpose                                                                           |
-| --------------------------------------- | --------------------------------------------------------------------------------- |
-| `profiles`                              | Display name, plan. Created by trigger on sign-up.                                |
-| `founder_profiles`, `businesses`        | Onboarding answers; businesses with `operating_mode` (not directly writable).     |
-| `conversations`, `messages`             | AI CEO chat per business.                                                         |
-| `usage_events`                          | AI request ledger; written only via `begin_ai_request()` / `finish_ai_request()`. |
-| `business_plans`                        | Immutable plan versions; one active per business.                                 |
-| `business_tasks`, `business_milestones` | Execution tracking.                                                               |
-| `founder_memories`                      | Long-term memory.                                                                 |
-| `ai_proposals`                          | AI-suggested changes awaiting approval.                                           |
-| `revenue_records`                       | Sales; "verified" requires evidence (DB check).                                   |
-| `ai_role_transitions`                   | Audit trail of mode switches via `switch_operating_mode()`.                       |
-| `agents`, `agent_memories`              | Agent infrastructure kept for future specialist agents.                           |
+| Table                                   | Purpose                                                                                                         |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `profiles`                              | Display name, plan. Created by trigger on sign-up.                                                              |
+| `founder_profiles`, `businesses`        | Onboarding answers, leadership style, reply language; businesses with `operating_mode` (not directly writable). |
+| `conversations`, `messages`             | AI CEO chat per business.                                                                                       |
+| `usage_events`                          | AI request ledger; written only via `begin_ai_request()` / `finish_ai_request()`.                               |
+| `business_plans`                        | Immutable plan versions; one active per business.                                                               |
+| `business_tasks`, `business_milestones` | Execution tracking; tasks carry success criteria, deliverable, blocker reason.                                  |
+| `founder_memories`                      | Long-term memory.                                                                                               |
+| `ai_proposals`                          | AI-suggested changes awaiting approval.                                                                         |
+| `revenue_records`                       | Sales; "verified" requires evidence (DB check).                                                                 |
+| `ai_role_transitions`                   | Audit trail of mode switches via `switch_operating_mode()`.                                                     |
+| `agents`, `agent_memories`              | Agent infrastructure kept for future specialist agents.                                                         |
 
 Types are generated from the migrations: `npm run db:types`.
 
@@ -116,6 +116,8 @@ Types are generated from the migrations: `npm run db:types`.
 | Founder profile, context with explicit unknowns                          | `src/lib/nanocrab-ceo/founder-profile/`                         |
 | Modes and universal principles                                           | `nanocrab-ceo/modes.ts`                                         |
 | Journey, next action, daily action                                       | `nanocrab-ceo/journey.ts`                                       |
+| Leadership styles (Standard / Executive), languages, response headings   | `nanocrab-ceo/leadership.ts`                                    |
+| Accountability report, today's CEO directive                             | `nanocrab-ceo/accountability.ts`                                |
 | Business plan schema                                                     | `nanocrab-ceo/plan.ts`                                          |
 | Typed AI proposals and commands                                          | `nanocrab-ceo/proposals.ts`, `nanocrab-ceo/ai/commands.ts`      |
 | Instructions, context budgets, history                                   | `nanocrab-ceo/ai/instructions.ts`, `nanocrab-ceo/ai/context.ts` |
